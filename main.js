@@ -159,8 +159,8 @@
     heroChart.style.setProperty('--tx', last[0] + 'px');
     heroChart.style.setProperty('--ty', (off + last[1] + 3) + 'px');
     // the week's result sits in the ground under Friday's close
-    heroChart.style.setProperty('--nx', (last[0] - 28) + 'px');
-    heroChart.style.setProperty('--ny', (off + last[1] + 56) + 'px');
+    heroChart.style.setProperty('--nx', (last[0] - 26) + 'px');
+    heroChart.style.setProperty('--ny', (off + last[1] + Math.max(96, built.h * .2)) + 'px');
     var span = last[0];
     var gutter = parseFloat(getComputedStyle($('.hero-copy')).paddingLeft) + $('.hero-copy').getBoundingClientRect().left;
     $$('.axis li', heroChart).forEach(function (li, i) { li.style.left = (gutter + (span - gutter) * i / 4) + 'px'; });
@@ -342,14 +342,14 @@
     return r.v * (t * .35 + .65 * t * t) + n * amp;
   }
   function buildField() {
-    var box = field.getBoundingClientRect();
+    var box = fieldSvg.getBoundingClientRect();
     var w = box.width, h = box.height;
     var head = $('.classic-head').getBoundingClientRect();
     var narrow = narrowMQ.matches;
     var x0 = head.left - box.left + parseFloat(getComputedStyle($('.classic-head')).paddingLeft);
     var tagW = narrow ? 104 : 170;
     var x1 = w - x0 - tagW + (narrow ? 8 : 0);
-    var lo = -8, hi = 16;
+    var lo = -11, hi = 16;
     function Y(v) { return 18 + (hi - v) / (hi - lo) * (h - 36); }
     fieldSvg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
     fieldSvg.innerHTML = '';
@@ -390,6 +390,7 @@
     }
     runnerPaths.forEach(function (path) { path.style.strokeDasharray = '1 1'; path.style.strokeDashoffset = String(1 - p); });
     field.classList.toggle('is-done', p > .97);
+    if (p > .55) $('#classic').classList.add('is-up');
   }
   buildField();
   addScrubber($('#classic'), scrubField);

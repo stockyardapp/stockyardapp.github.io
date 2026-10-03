@@ -270,7 +270,7 @@ html:not(.js) .hero-trophy { opacity: 1; }
 .sb-rows em.flex, .mr em.flex { --h: #8a9099; }
 
 .minor-modes {
-  margin-top: clamp(72px, 9vw, 128px); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 40px;
+  margin-top: clamp(56px, 6vw, 88px); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 40px;
   max-width: 880px;
 }
 .minor { text-decoration: none; display: block; }
@@ -519,15 +519,18 @@ html:not(.js) .hero-trophy { opacity: 1; }
 .field-svg .tag tspan.v { font-weight: 700; }
 .field-svg .tag.lead { fill: var(--text); }
 .field.is-done .tag { opacity: 1; }
-/* the real podium sits in the field, lifted off it */
+/* the real podium finishes the field: it rises out of the chart's last stretch */
+.classic-foot {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 340px); gap: 48px; align-items: start;
+  margin-top: clamp(24px, 3vw, 40px);
+}
 .podium {
-  position: absolute; right: max(var(--gutter), calc((100vw - var(--max)) / 2 + var(--gutter))); bottom: -6%;
-  width: clamp(240px, 24vw, 340px); border-radius: 20px;
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, .05), 0 40px 70px -30px rgba(0, 0, 0, .8);
+  width: 100%; border-radius: 20px; margin-top: calc(-1 * clamp(40px, 6vw, 96px)); position: relative;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, .05), 0 40px 70px -30px rgba(0, 0, 0, .85);
   opacity: 0; transform: translateY(24px); transition: opacity .7s ease, transform .9s var(--ease);
 }
-.field.is-done .podium, html:not(.js) .podium { opacity: 1; transform: none; }
-.terms { margin-top: clamp(40px, 5vw, 72px); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; max-width: 760px; }
+.classic.is-up .podium, html:not(.js) .podium { opacity: 1; transform: none; }
+.terms { margin-top: 8px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; max-width: 760px; }
 .terms dt { font-size: 13px; color: var(--muted); font-weight: 600; }
 .terms dd { margin-top: 6px; font-weight: 560; }
 
@@ -551,7 +554,8 @@ html:not(.js) .hero-trophy { opacity: 1; }
 .frag { position: absolute; }
 .frag img { border-radius: 18px; box-shadow: 0 0 0 1px rgba(255, 255, 255, .05), 0 40px 70px -34px rgba(0, 0, 0, .85); }
 .frag figcaption { margin-top: 12px; font-size: 13px; color: var(--muted); font-weight: 600; }
-.frag-chart { right: 0; top: 0; width: 70%; }
+.frag-chart { right: 0; top: 0; width: 70%; display: flex; flex-direction: column-reverse; }
+.frag-chart figcaption { margin: 0 0 12px; text-align: right; }
 .frag-mix { left: 0; bottom: 4%; width: 52%; z-index: 1; }
 
 /* ==========================================================================
@@ -638,9 +642,8 @@ html:not(.js) .hero-trophy { opacity: 1; }
   .js .step-stage .device { --w: min(86vw, 360px); margin-inline: auto; }
   html:not(.js) .fx { display: block; }
   html:not(.js) .fx-pin { position: static; justify-items: center; margin-bottom: 40px; }
-  .podium { position: relative; right: auto; bottom: auto; margin: -40px var(--gutter) 0 auto; }
-  .field { height: auto; }
-  .field-svg { height: clamp(300px, 70vw, 440px); }
+  .classic-foot { grid-template-columns: 1fr; gap: 32px; }
+  .podium { margin-top: 0; max-width: 380px; }
 }
 @media (max-width: 720px) {
   :root { --nav-h: 56px; }
@@ -667,7 +670,10 @@ html:not(.js) .hero-trophy { opacity: 1; }
   .roster small { display: none; }
   .roster .bar { grid-column: 1 / -1; grid-row: 2; height: 5px; margin-top: -2px; }
   .terms { grid-template-columns: 1fr; gap: 16px; }
-  .podium { width: min(72vw, 300px); }
+  .classic { padding-bottom: 56px; }
+  .solo { padding-top: 56px; }
+  .frag-chart { flex-direction: column; }
+  .frag-chart figcaption { margin: 12px 0 0; text-align: left; }
   .solo-visual { min-height: 0; display: grid; gap: 28px; }
   .frag { position: static; width: auto; }
   .frag-mix { width: 86%; }

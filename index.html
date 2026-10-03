@@ -3,297 +3,424 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Stockyard — Fantasy leagues for the stock market</title>
-<meta name="description" content="Draft real stocks, set a weekly lineup, and play your friends head to head. Practice money only — nothing real is ever at risk.">
-<meta property="og:title" content="Stockyard — Fantasy leagues for the stock market">
-<meta property="og:description" content="Draft real stocks, set a weekly lineup, and play your friends head to head.">
-<meta name="theme-color" content="#0B1220">
-<link rel="icon" href="icon.svg" type="image/svg+xml">
+<title>Stockyard — Fantasy Sports for the Stock Market</title>
+<meta name="description" content="Draft stocks, set weekly lineups and compete with friends on real market prices. Simulated money only — coming soon to the App Store.">
+<link rel="canonical" href="https://stockyardleagues.com/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://stockyardleagues.com/">
+<meta property="og:title" content="Stockyard — Fantasy Sports for the Stock Market">
+<meta property="og:description" content="Draft stocks, set weekly lineups and compete with friends on real market prices. Simulated money only.">
+<meta property="og:image" content="https://stockyardleagues.com/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0B0B0C">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="assets/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..900&family=IBM+Plex+Mono:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --ink:#0B1220; --field:#111A2E; --line:#1F2A44;
-    --paper:#EEF1F7; --muted:#8A94A8;
-    --blue:#2F80ED; --gold:#D79A2B;
-    --display:'Archivo',system-ui,sans-serif;
-    --body:'Inter',system-ui,sans-serif;
-    --mono:'IBM Plex Mono',ui-monospace,monospace;
-    --gutter:clamp(16px,4vw,48px);
-    --max:1120px;
-    color-scheme:dark;
-  }
-  *{box-sizing:border-box}
-  html{-webkit-text-size-adjust:100%}
-  body{margin:0;background:var(--ink);color:var(--paper);font:400 16px/1.6 var(--body);overflow-x:hidden}
-  a{color:inherit}
-  a:focus-visible,button:focus-visible{outline:2px solid var(--blue);outline-offset:3px;border-radius:4px}
-  .wrap{max-width:var(--max);margin:0 auto;padding:0 var(--gutter)}
-
-  /* Nav */
-  .nav{display:flex;align-items:center;justify-content:space-between;padding-block:20px}
-  .brand{display:flex;align-items:center;gap:10px;text-decoration:none;
-    font:800 20px/1 var(--display);font-stretch:112%;letter-spacing:.01em}
-  .brand img{width:32px;height:32px;border-radius:8px}
-  .nav ul{display:flex;gap:24px;list-style:none;margin:0;padding:0}
-  .nav ul a{color:var(--muted);text-decoration:none;font-size:14px;font-weight:500}
-  .nav ul a:hover{color:var(--paper)}
-
-  /* Hero */
-  .hero{display:grid;grid-template-columns:1.05fr 1fr;gap:56px;align-items:center;padding-block:56px 96px}
-  h1{font:900 clamp(56px,8.4vw,112px)/.86 var(--display);font-stretch:68%;
-    text-transform:uppercase;letter-spacing:-.005em;margin:0 0 28px}
-  h1 span{display:block}
-  h1 .dim{color:var(--muted)}
-  .lede{font-size:18px;color:#C3CADA;max-width:30em;margin:0 0 32px}
-  .cta{display:flex;flex-wrap:wrap;align-items:center;gap:20px}
-  .soon{display:inline-flex;align-items:center;gap:10px;padding:13px 20px;border-radius:999px;
-    background:var(--blue);color:#fff;font-weight:600;font-size:15px}
-  .soon svg{width:16px;height:16px}
-  .textlink{font-size:15px;font-weight:500;color:var(--muted);text-decoration:none;border-bottom:1px solid var(--line)}
-  .textlink:hover{color:var(--paper);border-color:var(--muted)}
-
-  /* Draft board — the signature */
-  .board{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:18px 0 14px}
-  .board-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;
-    font:600 12px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
-  .board-head b{color:var(--paper);font-weight:600}
-  .clock{color:var(--blue)}
-  .grid{display:grid;grid-template-columns:34px repeat(6,1fr);gap:4px}
-  .th{font:600 11px/1 var(--mono);color:var(--muted);text-align:center;padding:0 0 8px;letter-spacing:.04em}
-  .th.you{color:var(--blue)}
-  .rd{font:600 11px/1 var(--mono);color:var(--muted);display:flex;align-items:center;gap:3px}
-  .cell{height:44px;display:flex;align-items:center;justify-content:center;
-    background:var(--field);border-radius:6px;
-    font:600 clamp(11px,1.25vw,14px)/1 var(--mono);letter-spacing:.02em;color:transparent;
-    transition:background .25s,color .25s,box-shadow .25s}
-  .cell.you{background:#14223D}
-  .cell.taken{color:var(--paper)}
-  .cell.you.taken{color:#8DB8F5}
-  .cell.now{box-shadow:inset 0 0 0 1.5px var(--blue);color:var(--blue)}
-  .cell.now::after{content:'';width:6px;height:6px;border-radius:50%;background:var(--blue);animation:blink 1s steps(2) infinite}
-  .cell.taken.pop{animation:pop .35s ease-out}
-  @keyframes blink{50%{opacity:0}}
-  @keyframes pop{from{transform:scale(.88)}to{transform:none}}
-  .board-note{margin:14px 0 0;font-size:13px;color:var(--muted)}
-  .board-note b{color:var(--paper);font-weight:500}
-
-  /* Sections */
-  section{padding:88px 0;border-top:1px solid var(--line)}
-  .kicker{font:600 12px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--blue);margin:0 0 16px}
-  h2{font:850 clamp(36px,5vw,60px)/.95 var(--display);font-stretch:72%;text-transform:uppercase;margin:0 0 48px;max-width:14em}
-
-  .season{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line)}
-  .season li{padding:24px 24px 0 0;position:relative}
-  .season li+li{padding-left:24px;border-left:1px solid var(--line)}
-  .when{font:600 12px/1 var(--mono);color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
-  .season h3{font:800 26px/1 var(--display);font-stretch:85%;margin:14px 0 10px;text-transform:uppercase}
-  .season p{margin:0;color:#B8C0D0;font-size:15px}
-
-  .modes{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:56px;border-top:1px solid var(--line)}
-  .modes div{padding:22px 24px 0 0}
-  .modes div+div{padding-left:24px;border-left:1px solid var(--line)}
-  .modes h4{margin:0 0 6px;font:600 15px/1.3 var(--body)}
-  .modes p{margin:0;color:var(--muted);font-size:14px}
-
-  .clubs{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start}
-  .clubs h2{margin-bottom:0}
-  .clubs ul{list-style:none;margin:0;padding:0}
-  .clubs li{padding:18px 0;border-bottom:1px solid var(--line);display:grid;grid-template-columns:150px 1fr;gap:16px}
-  .clubs li:first-child{border-top:1px solid var(--line)}
-  .clubs dt,.clubs .k{font:600 13px/1.5 var(--mono);color:var(--paper)}
-  .clubs .v{color:#B8C0D0;font-size:15px}
-
-  .money{display:grid;grid-template-columns:auto 1fr;gap:32px;align-items:center}
-  .money .big{font:900 clamp(64px,10vw,128px)/.85 var(--display);font-stretch:62%;text-transform:uppercase;color:var(--paper)}
-  .money .big em{font-style:normal;color:var(--blue)}
-  .money p{margin:0 0 10px;color:#B8C0D0;max-width:32em}
-
-  footer{border-top:1px solid var(--line);padding:32px 0 48px;color:var(--muted);font-size:14px}
-  footer .wrap{display:flex;flex-wrap:wrap;gap:16px 28px;justify-content:space-between}
-  footer nav{display:flex;flex-wrap:wrap;gap:20px}
-  footer a{text-decoration:none}
-  footer a:hover{color:var(--paper)}
-
-  @media (max-width:900px){
-    .hero{grid-template-columns:1fr;gap:48px;padding-block:32px 72px}
-    .season{grid-template-columns:1fr 1fr}
-    .season li:nth-child(3){padding-left:0;border-left:0}
-    .season li{padding-bottom:28px}
-    .clubs{grid-template-columns:1fr;gap:32px}
-  }
-  @media (max-width:600px){
-    .nav ul{gap:16px}
-    .nav ul li.opt{display:none}
-    .season,.modes{grid-template-columns:1fr}
-    .season li,.season li+li,.modes div,.modes div+div{padding:22px 0;border-left:0}
-    .season li+li,.modes div+div{border-top:1px solid var(--line)}
-    .clubs li{grid-template-columns:1fr;gap:4px}
-    .money{grid-template-columns:1fr;gap:16px}
-    .grid{grid-template-columns:28px repeat(6,1fr);gap:3px}
-    .cell{height:38px}
-    section{padding:64px 0}
-  }
-  @media (prefers-reduced-motion:reduce){
-    .cell,.cell.taken.pop{transition:none;animation:none}
-    .cell.now::after{animation:none}
-  }
-</style>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="preload" as="image" href="assets/trophy.webp">
+<link rel="stylesheet" href="styles.css">
+<script>document.documentElement.classList.add('js')</script>
+<script src="main.js" defer></script>
 </head>
 <body>
 
-<header class="wrap nav">
-  <a class="brand" href="./" aria-label="Stockyard home"><img src="icon.svg" alt="">Stockyard</a>
-  <nav aria-label="Main">
-    <ul>
-      <li class="opt"><a href="#season">How it works</a></li>
-      <li class="opt"><a href="#clubs">For clubs</a></li>
-      <li><a href="mailto:stockyard.app@gmail.com">Contact</a></li>
-    </ul>
-  </nav>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="nav" id="nav">
+  <div class="wrap nav-row">
+    <a class="brand" href="#top" aria-label="Stockyard, back to top">
+      <img src="assets/trophy-sm.webp" alt="" width="28" height="29">
+      <span>Stockyard</span>
+    </a>
+    <nav aria-label="Sections">
+      <ul class="nav-links">
+        <li><a href="#fantasy">Fantasy</a></li>
+        <li><a href="#classic">Classic</a></li>
+        <li><a href="#solo">Solo</a></li>
+      </ul>
+    </nav>
+    <span class="nav-soon">Coming soon</span>
+  </div>
 </header>
 
-<main>
-  <div class="wrap hero">
-    <div>
-      <h1><span>Draft stocks.</span><span class="dim">Play your</span><span>friends.</span></h1>
-      <p class="lede">Stockyard is fantasy football for the stock market. Draft a roster of real companies, set your lineup each week, and go head to head with your league. It runs on practice money, so nothing real is ever at risk.</p>
-      <div class="cta">
-        <span class="soon"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M11.2 8.5c0-1.7 1.4-2.5 1.5-2.6-.8-1.2-2.1-1.3-2.5-1.3-1.1-.1-2.1.6-2.6.6-.6 0-1.4-.6-2.3-.6-1.2 0-2.3.7-2.9 1.8-1.3 2.2-.3 5.4.9 7.1.6.9 1.3 1.8 2.2 1.8.9 0 1.2-.6 2.3-.6s1.4.6 2.3.6c1 0 1.6-.9 2.1-1.7.7-1 1-1.9 1-2-.1 0-2-.8-2-3.1zM9.6 3.4c.5-.6.8-1.4.7-2.2-.7 0-1.6.5-2.1 1.1-.5.5-.9 1.3-.8 2.1.8.1 1.7-.4 2.2-1z"/></svg>Coming to the App Store this fall</span>
-        <a class="textlink" href="#season">How a season works</a>
+<main id="main">
+
+  <!-- ============ HERO ============ -->
+  <section class="hero" id="top" aria-labelledby="hero-title">
+    <div class="hero-grid" aria-hidden="true"></div>
+    <div class="wrap hero-inner">
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="dot"></span>Coming soon to the App Store</p>
+        <h1 id="hero-title" class="hero-title">Play the<br>market.</h1>
+        <p class="hero-lede">Draft stocks, set a weekly lineup and go head to head with your friends. The prices are real. The money isn't.</p>
+        <ul class="hero-facts" aria-label="At a glance">
+          <li>Real market prices</li>
+          <li>Simulated money</li>
+          <li>Leagues with friends</li>
+        </ul>
       </div>
+      <figure class="hero-mark">
+        <img src="assets/trophy.webp" alt="The Stockyard trophy" width="408" height="418" fetchpriority="high">
+      </figure>
     </div>
+    <div class="hero-line" aria-hidden="true">
+      <svg class="market-line" data-curve="intro" data-delay="350"></svg>
+    </div>
+  </section>
 
-    <figure class="board" aria-label="A six-team snake draft filling in, round by round" style="margin:0">
-      <div class="board-head"><span>Live draft · <b>6 teams</b></span><span class="clock" id="clock" aria-live="off">Round 1 · Pick 1</span></div>
-      <div class="grid" id="grid"></div>
-      <figcaption class="board-note">Snake order, and <b>every stock can be drafted once</b>. If someone takes NVDA before you, you'll need a different pick.</figcaption>
-    </figure>
-  </div>
-
-  <section id="season">
+  <!-- ============ THE IDEA ============ -->
+  <section class="idea" aria-labelledby="idea-title">
     <div class="wrap">
-      <p class="kicker">How a season works</p>
-      <h2>A season, start to finish</h2>
-      <ol class="season">
-        <li><span class="when">Before week 1</span><h3>Draft</h3><p>Take turns picking real stocks and ETFs in a snake draft. Every pick is yours alone for the season.</p></li>
-        <li><span class="when">Each weekend</span><h3>Set your lineup</h3><p>Start the stocks you believe in and bench the rest. Claim free agents and trade with other managers.</p></li>
-        <li><span class="when">Monday – Friday</span><h3>Matchup</h3><p>Your starters play your opponent's. Points come from how much your lineup gains that week.</p></li>
-        <li><span class="when">End of season</span><h3>Playoffs</h3><p>The top records make a bracket. One team takes the trophy, and everyone gets a season recap.</p></li>
-      </ol>
+      <p class="label">The idea</p>
+      <h2 id="idea-title" class="h2">One market.<br><span class="muted">Three ways to play.</span></h2>
 
       <div class="modes">
-        <div><h4>Fantasy leagues</h4><p>The draft, weekly matchups and playoffs described above.</p></div>
-        <div><h4>Classic leagues</h4><p>Everyone starts with the same practice cash and trades any stock. The best portfolio at the end wins.</p></div>
-        <div><h4>Solo</h4><p>No league needed. Build a portfolio and track your trades on your own.</p></div>
+        <a class="mode mode-fantasy" href="#fantasy">
+          <span class="mode-tag">Fantasy league</span>
+          <h3 class="mode-title">Draft stocks. Set lineups. Win your week.</h3>
+          <p class="mode-copy">A snake draft, a weekly lineup and a head-to-head matchup, scored on how your stocks actually move.</p>
+          <div class="mini-matchup" aria-hidden="true">
+            <div class="mm-side"><img src="assets/av-07.webp" alt="" width="40" height="40"><b class="up">45.00</b></div>
+            <span class="mm-vs">vs</span>
+            <div class="mm-side mm-right"><b>17.50</b><img src="assets/av-15.webp" alt="" width="40" height="40"></div>
+          </div>
+          <span class="mode-go">How fantasy works <i aria-hidden="true">→</i></span>
+        </a>
+        <a class="mode" href="#classic">
+          <span class="mode-tag">Classic league</span>
+          <h3 class="mode-title">Same starting balance. Best portfolio wins.</h3>
+          <svg class="mini-fan" viewBox="0 0 200 60" aria-hidden="true" preserveAspectRatio="none">
+            <path d="M0 40 C60 38 110 22 200 8" class="lead"/>
+            <path d="M0 40 C60 40 120 32 200 24"/>
+            <path d="M0 40 C60 42 120 40 200 38"/>
+            <path d="M0 40 C60 44 120 50 200 54"/>
+          </svg>
+          <span class="mode-go">Classic <i aria-hidden="true">→</i></span>
+        </a>
+        <a class="mode" href="#solo">
+          <span class="mode-tag">Solo</span>
+          <h3 class="mode-title">No league needed. Just you and the market.</h3>
+          <p class="mini-balance" aria-hidden="true"><span>$10K</span><span class="on">$100K</span><span>$1M</span></p>
+          <span class="mode-go">Solo <i aria-hidden="true">→</i></span>
+        </a>
       </div>
     </div>
   </section>
 
-  <section id="clubs">
-    <div class="wrap clubs">
-      <div>
-        <p class="kicker">For clubs and classes</p>
-        <h2>Run your group's league</h2>
+  <!-- ============ FANTASY STORY ============ -->
+  <section class="fantasy" id="fantasy" aria-labelledby="fantasy-title">
+    <div class="wrap">
+      <header class="section-head">
+        <p class="label label-gold">Fantasy leagues</p>
+        <h2 id="fantasy-title" class="h2">Fantasy sports,<br><span class="muted">meet the stock market.</span></h2>
+        <p class="section-lede">Everything you know from a fantasy league, with companies instead of players. Here's one week, start to finish.</p>
+      </header>
+
+      <div class="story">
+        <div class="story-visual">
+          <div class="phone phone-ui" aria-hidden="true">
+            <div class="screen" style="--steps:4">
+
+              <!-- 1 · DRAFT -->
+              <div class="ui ui-draft is-active" data-screen="0">
+                <div class="ui-bar"><span class="ui-menu"></span><b>Showcase · Sectors</b><span class="ui-gear"></span></div>
+                <div class="ui-tabs"><span>Stocks</span><span>Queue</span><span class="on">Board</span><span>Results</span></div>
+                <div class="draft-clock">
+                  <div><small>Round 3 · Pick 3</small><b>You're on the clock</b></div>
+                  <span class="draft-time">0:38</span>
+                </div>
+                <div class="draft-board">
+                  <span class="db-h">T1</span><span class="db-h">T2</span><span class="db-h you">YOU</span><span class="db-h">T4</span>
+                  <span>NVDA</span><span>MSFT</span><span class="you">AAPL</span><span>AMZN</span>
+                  <span>JPM</span><span>LLY</span><span class="you">COST</span><span>XOM</span>
+                  <span>V</span><span>NEE</span><span class="you now"></span><span class="empty"></span>
+                </div>
+                <div class="draft-list">
+                  <div class="dl-row"><span class="tile t-teal">U</span><div><b>UNH</b><small>UnitedHealth</small></div><em class="pos" style="--h:#2DD4BF">HLTH</em><span class="dl-btn">Draft</span></div>
+                  <div class="dl-row"><span class="tile t-indigo">G</span><div><b>GS</b><small>Goldman Sachs</small></div><em class="pos" style="--h:#6366F1">FIN</em><span class="dl-btn">Draft</span></div>
+                  <div class="dl-row taken"><span class="tile">V</span><div><b>V</b><small>Visa</small></div><em class="pos" style="--h:#6366F1">FIN</em><span class="dl-taken">Taken by T1</span></div>
+                  <div class="dl-row"><span class="tile t-slate">H</span><div><b>HON</b><small>Honeywell</small></div><em class="pos" style="--h:#94A3B8">INDL</em><span class="dl-btn">Draft</span></div>
+                  <div class="dl-row"><span class="tile t-purple">E</span><div><b>EOG</b><small>EOG Resources</small></div><em class="pos" style="--h:#8B7CF6">ENGY</em><span class="dl-btn">Draft</span></div>
+                  <div class="dl-row"><span class="tile t-pink">M</span><div><b>MCD</b><small>McDonald's</small></div><em class="pos" style="--h:#E879B9">CONS</em><span class="dl-btn">Draft</span></div>
+                </div>
+                <div class="draft-need">Still need <b>HLTH · FIN · INDL · ENGY</b></div>
+              </div>
+
+              <!-- 2 · LINEUP -->
+              <div class="ui ui-lineup" data-screen="1">
+                <div class="ui-bar"><span class="ui-menu"></span><b>Showcase · Sectors</b><span class="ui-gear"></span></div>
+                <div class="ui-tabs"><span class="on">Roster</span><span>Matchup</span><span>Stocks</span><span>Leaderboard</span></div>
+                <div class="lu-head"><b>Week 5 lineup</b><small>Sets at Monday's open</small></div>
+                <div class="lu-slots">
+                  <div class="lu-row"><em class="pos" style="--h:#3B82F6">TECH</em><b>DIS</b><small>Walt Disney</small></div>
+                  <div class="lu-row"><em class="pos" style="--h:#2DD4BF">HLTH</em><b>REGN</b><small>Regeneron</small></div>
+                  <div class="lu-row"><em class="pos" style="--h:#6366F1">FIN</em><b>BAC</b><small>Bank of America</small></div>
+                  <div class="lu-row"><em class="pos" style="--h:#E879B9">CONS</em><b>PEP</b><small>PepsiCo</small></div>
+                  <div class="lu-row"><em class="pos" style="--h:#94A3B8">INDL</em><b>HON</b><small>Honeywell</small></div>
+                  <div class="lu-row"><em class="pos" style="--h:#8B7CF6">ENGY</em><b>OXY</b><small>Occidental</small></div>
+                  <div class="lu-row"><em class="pos flex">FLEX</em><b>FDX</b><small>FedEx</small></div>
+                  <div class="lu-row"><em class="pos flex">FLEX</em><b>COST</b><small>Costco</small></div>
+                </div>
+                <div class="lu-bench-h">Bench</div>
+                <div class="lu-slots bench">
+                  <div class="lu-row"><em class="pos bn">BN</em><b>AAPL</b><small>Apple</small></div>
+                  <div class="lu-row"><em class="pos bn">BN</em><b>T</b><small>AT&amp;T</small></div>
+                </div>
+              </div>
+
+              <!-- 3 · MATCHUP (recreation of the app's sector matchup, illustrative values) -->
+              <div class="ui ui-matchup" data-screen="2">
+                <div class="ui-bar"><span class="ui-menu"></span><b>Showcase · Sectors</b><span class="ui-gear"></span></div>
+                <div class="ui-tabs"><span>Roster</span><span class="on">Matchup</span><span>Stocks</span><span>Leaderboard</span></div>
+                <div class="mu-score">
+                  <div class="mu-side">
+                    <div class="mu-top"><img src="assets/av-07.webp" alt=""><b class="up">45.00</b></div>
+                    <strong>samrivera</strong><small>Sam Rivera · 3-1</small>
+                  </div>
+                  <div class="mu-side mu-r">
+                    <div class="mu-top"><b class="up">17.50</b><img src="assets/av-15.webp" alt=""></div>
+                    <strong>mayalind</strong><small>Maya Lindqvist · 3-1</small>
+                  </div>
+                </div>
+                <div class="mu-rows">
+                  <div class="mu-row"><div class="l"><b>DIS</b><small class="up">+1.20%</small></div><span class="p up">7.50</span><em style="--h:#3B82F6">TECH</em><span class="p up">15.00</span><div class="r"><b>NVDA</b><small class="up">+2.40%</small></div></div>
+                  <div class="mu-row"><div class="l"><b>REGN</b><small class="dn">−0.80%</small></div><span class="p dn">−5.00</span><em style="--h:#2DD4BF">HLTH</em><span class="p up">2.00</span><div class="r"><b>VRTX</b><small class="up">+0.32%</small></div></div>
+                  <div class="mu-row"><div class="l"><b>BAC</b><small class="up">+2.08%</small></div><span class="p up">13.00</span><em style="--h:#6366F1">FIN</em><span class="p dn">−4.00</span><div class="r"><b>AXP</b><small class="dn">−0.64%</small></div></div>
+                  <div class="mu-row"><div class="l"><b>PEP</b><small class="up">+0.40%</small></div><span class="p up">2.50</span><em style="--h:#E879B9">CONS</em><span class="p up">1.00</span><div class="r"><b>KMB</b><small class="up">+0.16%</small></div></div>
+                  <div class="mu-row"><div class="l"><b>HON</b><small class="up">+1.60%</small></div><span class="p up">10.00</span><em style="--h:#94A3B8">INDL</em><span class="p up">5.50</span><div class="r"><b>APD</b><small class="up">+0.88%</small></div></div>
+                  <div class="mu-row"><div class="l"><b>OXY</b><small class="dn">−1.28%</small></div><span class="p dn">−8.00</span><em style="--h:#8B7CF6">ENGY</em><span class="p dn">−10.00</span><div class="r"><b>COP</b><small class="dn">−1.60%</small></div></div>
+                  <div class="mu-row"><div class="l"><b>FDX</b><small class="up">+3.04%</small></div><span class="p up">19.00</span><em class="flex">FLEX</em><span class="p up">3.00</span><div class="r"><b>D</b><small class="up">+0.48%</small></div></div>
+                  <div class="mu-row"><div class="l"><b>COST</b><small class="up">+0.96%</small></div><span class="p up">6.00</span><em class="flex">FLEX</em><span class="p up">5.00</span><div class="r"><b>SPY</b><small class="up">+0.80%</small></div></div>
+                </div>
+              </div>
+
+              <!-- 4 · STANDINGS -->
+              <div class="ui ui-standings" data-screen="3">
+                <div class="ui-bar"><span class="ui-menu"></span><b>Showcase · Sectors</b><span class="ui-gear"></span></div>
+                <div class="ui-tabs"><span>Roster</span><span>Matchup</span><span>Stocks</span><span class="on">Leaderboard</span></div>
+                <div class="st-head"><span>Team</span><span>W-L</span><span>Points</span></div>
+                <div class="st-row me"><i>1</i><img src="assets/av-07.webp" alt=""><b>samrivera</b><span>4-1</span><span>212.50</span></div>
+                <div class="st-row"><i>2</i><img src="assets/av-15.webp" alt=""><b>mayalind</b><span>3-2</span><span>198.00</span></div>
+                <div class="st-row"><i>3</i><img src="assets/av-03.webp" alt=""><b>jordanmw</b><span>3-2</span><span>176.25</span></div>
+                <div class="st-row"><i>4</i><img src="assets/av-05.webp" alt=""><b>priyar</b><span>3-2</span><span>150.75</span></div>
+                <div class="st-cut">Playoff line</div>
+                <div class="st-row out"><i>5</i><img src="assets/av-11.webp" alt=""><b>lucasbr</b><span>2-3</span><span>121.00</span></div>
+                <div class="st-row out"><i>6</i><img src="assets/av-19.webp" alt=""><b>devkapoor</b><span>0-5</span><span>88.50</span></div>
+                <div class="st-final"><img src="assets/trophy-sm.webp" alt=""><div><b>Playoffs start week 9</b><small>Top four make the bracket</small></div></div>
+              </div>
+
+            </div>
+          </div>
+          <p class="illus">Illustrative league</p>
+        </div>
+
+        <ol class="steps">
+          <li class="step is-active" data-step="0">
+            <span class="step-n">Draft</span>
+            <h3>Draft the market.</h3>
+            <p>Take turns in a snake draft. Each stock can only be on one roster, so if someone takes NVDA before you, you need a different plan.</p>
+          </li>
+          <li class="step" data-step="1">
+            <span class="step-n">Lineup</span>
+            <h3>Set your lineup.</h3>
+            <p>Before the week starts, pick who starts and who sits. In a sector league, every slot is a position: Tech, Healthcare, Financials, Consumer, Industrials, Energy, plus two Flex spots.</p>
+          </li>
+          <li class="step" data-step="2">
+            <span class="step-n">Matchup</span>
+            <h3>Go head to head.</h3>
+            <p>Your starters play your opponent's starters, slot against slot. Points come from how your stocks move that week, and the higher score takes the win.</p>
+          </li>
+          <li class="step" data-step="3">
+            <span class="step-n">Standings</span>
+            <h3>Climb the standings.</h3>
+            <p>Every week counts toward your record. The top teams make the playoff bracket, and one of them takes home the trophy.</p>
+          </li>
+        </ol>
       </div>
-      <ul>
-        <li><span class="k">Who it's for</span><span class="v">Investment clubs, business fraternities, finance classes, student-managed funds and groups of friends.</span></li>
-        <li><span class="k">Getting in</span><span class="v">Members join from an invite link or code. No setup on their end.</span></li>
-        <li><span class="k">Commissioner</span><span class="v">The organizer sets the start date, budget and draft time, and manages members.</span></li>
-        <li><span class="k">Learning</span><span class="v">A trade coach and research tools show members why their picks worked, or didn't.</span></li>
+    </div>
+  </section>
+
+  <!-- ============ LEAGUE RULES ============ -->
+  <section class="rules" id="rules" aria-labelledby="rules-title">
+    <div class="wrap">
+      <header class="section-head">
+        <p class="label label-gold">Fantasy settings</p>
+        <h2 id="rules-title" class="h2">Your league.<br><span class="muted">Your rules.</span></h2>
+        <p class="section-lede">Every fantasy league picks two settings when it's created. Try them.</p>
+      </header>
+
+      <div class="rule-grid">
+        <!-- Draft style -->
+        <article class="rule" data-rule="draft">
+          <div class="rule-top">
+            <h3>Draft style</h3>
+            <div class="seg" role="radiogroup" aria-label="Draft style">
+              <button type="button" role="radio" aria-checked="true" data-value="open">Open</button>
+              <button type="button" role="radio" aria-checked="false" data-value="sector">Sector</button>
+              <span class="seg-thumb" aria-hidden="true"></span>
+            </div>
+          </div>
+          <p class="rule-copy" data-for="open">Draft any stocks you like. Eight starters, no restrictions. Going all-in on tech is allowed.</p>
+          <p class="rule-copy" data-for="sector" hidden>Each slot is a sector, like positions on a football roster. Fill them all, with two Flex spots for anything.</p>
+          <ul class="roster" aria-live="polite">
+            <li><em class="pos" data-open="SLOT" data-sector="TECH" style="--h:#3B82F6">SLOT</em><b data-open="NVDA" data-sector="NVDA">NVDA</b></li>
+            <li><em class="pos" data-open="SLOT" data-sector="HLTH" style="--h:#2DD4BF">SLOT</em><b data-open="MSFT" data-sector="LLY">MSFT</b></li>
+            <li><em class="pos" data-open="SLOT" data-sector="FIN" style="--h:#6366F1">SLOT</em><b data-open="AAPL" data-sector="JPM">AAPL</b></li>
+            <li><em class="pos" data-open="SLOT" data-sector="CONS" style="--h:#E879B9">SLOT</em><b data-open="AVGO" data-sector="COST">AVGO</b></li>
+            <li><em class="pos" data-open="SLOT" data-sector="INDL" style="--h:#94A3B8">SLOT</em><b data-open="AMD" data-sector="CAT">AMD</b></li>
+            <li><em class="pos" data-open="SLOT" data-sector="ENGY" style="--h:#8B7CF6">SLOT</em><b data-open="META" data-sector="XOM">META</b></li>
+            <li><em class="pos flex" data-open="SLOT" data-sector="FLEX">SLOT</em><b data-open="TSM" data-sector="AMZN">TSM</b></li>
+            <li><em class="pos flex" data-open="SLOT" data-sector="FLEX">SLOT</em><b data-open="GOOGL" data-sector="SPY">GOOGL</b></li>
+          </ul>
+        </article>
+
+        <!-- Portfolio style -->
+        <article class="rule" data-rule="money">
+          <div class="rule-top">
+            <h3>Portfolio style</h3>
+            <div class="seg" role="radiogroup" aria-label="Portfolio style">
+              <button type="button" role="radio" aria-checked="true" data-value="managed">Managed</button>
+              <button type="button" role="radio" aria-checked="false" data-value="locked">Locked</button>
+              <span class="seg-thumb" aria-hidden="true"></span>
+            </div>
+          </div>
+          <p class="rule-copy" data-for="managed">You get a weekly budget and decide how much goes into each starter, and you can trade during the week.</p>
+          <p class="rule-copy" data-for="locked" hidden>The budget splits evenly across your starters at Monday's open. No trading, no rebalancing. Pick your lineup and watch.</p>
+          <div class="alloc" aria-live="polite">
+            <div class="alloc-head"><span>Weekly budget</span><b>$100,000</b><span class="lock" aria-hidden="true"></span></div>
+            <ul class="bars">
+              <li style="--m:24;--l:12.5"><b>NVDA</b><span class="bar"><i></i></span><em data-managed="$24,000" data-locked="$12,500">$24,000</em></li>
+              <li style="--m:18;--l:12.5"><b>LLY</b><span class="bar"><i></i></span><em data-managed="$18,000" data-locked="$12,500">$18,000</em></li>
+              <li style="--m:15;--l:12.5"><b>JPM</b><span class="bar"><i></i></span><em data-managed="$15,000" data-locked="$12,500">$15,000</em></li>
+              <li style="--m:12;--l:12.5"><b>COST</b><span class="bar"><i></i></span><em data-managed="$12,000" data-locked="$12,500">$12,000</em></li>
+              <li style="--m:10;--l:12.5"><b>CAT</b><span class="bar"><i></i></span><em data-managed="$10,000" data-locked="$12,500">$10,000</em></li>
+              <li style="--m:9;--l:12.5"><b>XOM</b><span class="bar"><i></i></span><em data-managed="$9,000" data-locked="$12,500">$9,000</em></li>
+              <li style="--m:7;--l:12.5"><b>AMZN</b><span class="bar"><i></i></span><em data-managed="$7,000" data-locked="$12,500">$7,000</em></li>
+              <li style="--m:5;--l:12.5"><b>SPY</b><span class="bar"><i></i></span><em data-managed="$5,000" data-locked="$12,500">$5,000</em></li>
+            </ul>
+          </div>
+        </article>
+      </div>
+      <p class="rule-foot">The two settings are independent, so any combination works: Open and Managed, Sector and Locked, or either of the other two.</p>
+    </div>
+  </section>
+
+  <!-- ============ CLASSIC ============ -->
+  <section class="classic" id="classic" aria-labelledby="classic-title">
+    <div class="wrap classic-grid">
+      <div class="classic-copy">
+        <p class="label">Classic leagues</p>
+        <h2 id="classic-title" class="h2">Same start.<br><span class="muted">Different strategy.</span></h2>
+        <p class="section-lede">Create a league, pick how long it runs and how much everyone starts with. Then everyone builds their own portfolio, and the standings track who's ahead.</p>
+        <dl class="facts">
+          <div><dt>Starting balance</dt><dd>Equal for everyone</dd></div>
+          <div><dt>Trading</dt><dd>Any stock, any time the market's open</dd></div>
+          <div><dt>Winner</dt><dd>Best total return at the end</dd></div>
+        </dl>
+      </div>
+      <div class="classic-visual">
+        <figure class="fan">
+          <figcaption><span>Everyone starts at</span><b>$100,000</b></figcaption>
+          <svg class="fan-svg" viewBox="0 0 600 360" aria-hidden="true">
+            <line x1="0" y1="200" x2="600" y2="200" class="base"/>
+            <path pathLength="1" class="f lead" d="M0 200 C80 196 140 180 220 168 S360 120 430 112 S540 92 600 86"/>
+            <path pathLength="1" class="f" d="M0 200 C90 202 150 184 230 176 S370 140 450 130 S550 116 600 112"/>
+            <path pathLength="1" class="f" d="M0 200 C80 204 170 192 250 186 S380 170 460 160 S560 158 600 156"/>
+            <path pathLength="1" class="f" d="M0 200 C100 198 170 196 250 182 S390 168 470 164 S560 162 600 158"/>
+            <path pathLength="1" class="f" d="M0 200 C90 206 180 200 260 192 S400 176 480 170 S560 168 600 166"/>
+            <path pathLength="1" class="f" d="M0 200 C90 196 170 204 260 200 S400 192 480 190 S560 192 600 191"/>
+            <path pathLength="1" class="f dn" d="M0 200 C90 210 170 220 260 226 S400 236 480 244 S560 250 600 251"/>
+            <text x="596" y="70" class="t lead">samrivera <tspan>+14.19%</tspan></text>
+            <text x="596" y="136" class="t">jordanmw <tspan>+11.12%</tspan></text>
+            <text x="596" y="276" class="t dn">ameliao <tspan>−5.90%</tspan></text>
+          </svg>
+        </figure>
+        <figure class="phone phone-shot classic-phone">
+          <div class="statusbar" aria-hidden="true"><span>9:41</span></div>
+          <img src="assets/standings.webp" alt="Stockyard classic league standings: a podium of the top three players above the full member table with portfolio value and return." width="588" height="1026" loading="lazy" decoding="async">
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SOLO ============ -->
+  <section class="solo" id="solo" aria-labelledby="solo-title">
+    <div class="wrap solo-grid">
+      <figure class="phone phone-shot solo-phone">
+        <div class="statusbar" aria-hidden="true"><span>9:41</span></div>
+        <img src="assets/stock.webp" alt="Stockyard stock detail page for Tesla: price, a one-year chart, the 52-week range and a Trade button." width="584" height="1192" loading="lazy" decoding="async">
+      </figure>
+      <div class="solo-copy">
+        <p class="label">Solo</p>
+        <h2 id="solo-title" class="h2">No league<br><span class="muted">required.</span></h2>
+        <p class="section-lede">Choose a starting balance and build a portfolio on your own. Try a strategy, buy what you've been watching, and see how it would have played out.</p>
+        <div class="balances" aria-label="Starting balance options">
+          <span>$10,000</span><span class="on">$100,000</span><span>$1,000,000</span><span>Custom</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ THE PRODUCT ============ -->
+  <section class="product" aria-labelledby="product-title">
+    <div class="wrap">
+      <header class="section-head center">
+        <p class="label">The app</p>
+        <h2 id="product-title" class="h2">Built around the market.</h2>
+        <p class="section-lede">Charts, portfolio mix and every position you hold, in one place. Every mode runs on the same app.</p>
+      </header>
+      <div class="stage" id="stage">
+        <figure class="phone phone-shot stage-l">
+          <div class="statusbar" aria-hidden="true"><span>9:41</span></div>
+          <img src="assets/stock.webp" alt="" width="584" height="1192" loading="lazy" decoding="async">
+        </figure>
+        <figure class="phone phone-shot stage-c">
+          <div class="statusbar" aria-hidden="true"><span>9:41</span></div>
+          <img src="assets/portfolio.webp" alt="Stockyard portfolio summary: total value, all-time return, a one-week chart and the portfolio mix by holding." width="582" height="948" loading="lazy" decoding="async">
+        </figure>
+        <figure class="phone phone-shot stage-r">
+          <div class="statusbar" aria-hidden="true"><span>9:41</span></div>
+          <img src="assets/standings.webp" alt="" width="588" height="1026" loading="lazy" decoding="async">
+        </figure>
+      </div>
+      <ul class="spec">
+        <li><b>Real prices</b><span>US stocks and ETFs, priced from the market.</span></li>
+        <li><b>Simulated money</b><span>No deposits, no withdrawals, no payouts.</span></li>
+        <li><b>Built for groups</b><span>Invite friends with a link or a code.</span></li>
       </ul>
     </div>
   </section>
 
-  <section>
-    <div class="wrap money">
-      <div class="big">No real<br><em>money.</em></div>
-      <div>
-        <p>Stockyard uses real market prices with practice money. You can't deposit, withdraw, bet or win cash, and no trade ever reaches a real exchange.</p>
-        <p>It's a game for learning how markets move, with friends keeping score.</p>
-      </div>
+  <!-- ============ CLOSING ============ -->
+  <section class="closing" aria-labelledby="closing-title">
+    <div class="closing-line" aria-hidden="true">
+      <svg class="market-line" data-curve="intro" data-on-view></svg>
+    </div>
+    <div class="wrap closing-inner">
+      <img class="closing-mark" src="assets/trophy.webp" alt="" width="408" height="418" loading="lazy">
+      <h2 id="closing-title" class="h2">See you at the draft.</h2>
+      <p class="closing-sub">Real prices, simulated money, and a trophy at the end of every season.</p>
+      <p class="soon-badge"><svg viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M11.2 8.5c0-1.7 1.4-2.5 1.5-2.6-.8-1.2-2.1-1.3-2.5-1.3-1.1-.1-2.1.6-2.6.6-.6 0-1.4-.6-2.3-.6-1.2 0-2.3.7-2.9 1.8-1.3 2.2-.3 5.4.9 7.1.6.9 1.3 1.8 2.2 1.8.9 0 1.2-.6 2.3-.6s1.4.6 2.3.6c1 0 1.6-.9 2.1-1.7.7-1 1-1.9 1-2-.1 0-2-.8-2-3.1zM9.6 3.4c.5-.6.8-1.4.7-2.2-.7 0-1.6.5-2.1 1.1-.5.5-.9 1.3-.8 2.1.8.1 1.7-.4 2.2-1z"/></svg>Coming soon to the App Store</p>
     </div>
   </section>
 </main>
 
-<footer>
-  <div class="wrap">
-    <span>© 2026 Stockyard</span>
-    <nav aria-label="Legal">
+<footer class="footer">
+  <div class="wrap footer-row">
+    <div class="footer-brand">
+      <img src="assets/trophy-sm.webp" alt="" width="22" height="23"><b>Stockyard</b>
+      <p>Stockyard uses simulated money. Nothing in the app is investment advice.</p>
+    </div>
+    <nav class="footer-links" aria-label="Legal and support">
       <a href="https://dsouzareh631-ship-it.github.io/stockyard-legal/privacy.html">Privacy</a>
       <a href="https://dsouzareh631-ship-it.github.io/stockyard-legal/terms.html">Terms</a>
       <a href="https://dsouzareh631-ship-it.github.io/stockyard-legal/support.html">Support</a>
-      <a href="mailto:stockyard.app@gmail.com">stockyard.app@gmail.com</a>
+      <a href="mailto:stockyard.app@gmail.com">Contact</a>
     </nav>
   </div>
+  <div class="wrap footer-base">© 2026 Stockyard</div>
 </footer>
 
-<script>
-(function () {
-  // Picks in draft order. Tickers only: the board shows WHO took WHAT, never a price.
-  var PICKS = ['NVDA','MSFT','AAPL','AMZN','GOOGL','META',
-               'TSLA','AVGO','LLY','JPM','V','COST',
-               'NFLX','AMD','XOM','UNH','MA','WMT',
-               'PLTR','COIN','ORCL','HD','KO','CRM',
-               'UBER','SPY','QQQ','DIS','BA','NKE'];
-  var TEAMS = 6, ROUNDS = 5, YOU = 2; // the viewer drafts from slot 3
-  var grid = document.getElementById('grid');
-  var clock = document.getElementById('clock');
-
-  // Header row
-  grid.appendChild(el('div', 'th', ''));
-  for (var t = 0; t < TEAMS; t++) grid.appendChild(el('div', 'th' + (t === YOU ? ' you' : ''), t === YOU ? 'YOU' : 'T' + (t + 1)));
-
-  // Rows; snake: odd rounds run right-to-left
-  var cells = []; // cells[round][team]
-  for (var r = 0; r < ROUNDS; r++) {
-    grid.appendChild(el('div', 'rd', 'R' + (r + 1) + (r % 2 ? '←' : '→')));
-    cells[r] = [];
-    for (var c = 0; c < TEAMS; c++) {
-      var cell = el('div', 'cell' + (c === YOU ? ' you' : ''), '');
-      grid.appendChild(cell);
-      cells[r][c] = cell;
-    }
-  }
-
-  function slotFor(n) { // pick index → [round, team]
-    var r = Math.floor(n / TEAMS), i = n % TEAMS;
-    return [r, r % 2 ? TEAMS - 1 - i : i];
-  }
-  function label(n) {
-    var r = Math.floor(n / TEAMS);
-    return 'Round ' + (r + 1) + ' · Pick ' + (n + 1);
-  }
-
-  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (reduce) {
-    PICKS.forEach(function (sym, n) { var s = slotFor(n), x = cells[s[0]][s[1]]; x.textContent = sym; x.classList.add('taken'); });
-    clock.textContent = 'Draft complete';
-    return;
-  }
-
-  var n = 0;
-  function onClock() {
-    if (n >= PICKS.length) { clock.textContent = 'Draft complete'; setTimeout(reset, 3200); return; }
-    var s = slotFor(n), x = cells[s[0]][s[1]];
-    x.classList.add('now');
-    clock.textContent = label(n);
-    setTimeout(function () {
-      x.classList.remove('now');
-      x.textContent = PICKS[n];
-      x.classList.add('taken', 'pop');
-      n++;
-      setTimeout(onClock, 260);
-    }, s[1] === YOU ? 1100 : 520);
-  }
-  function reset() {
-    cells.forEach(function (row) { row.forEach(function (x) { x.textContent = ''; x.className = 'cell' + (x === row[YOU] ? ' you' : ''); }); });
-    n = 0; onClock();
-  }
-  function el(tag, cls, text) { var d = document.createElement(tag); d.className = cls; d.textContent = text; return d; }
-  setTimeout(onClock, 600);
-})();
-</script>
 </body>
 </html>

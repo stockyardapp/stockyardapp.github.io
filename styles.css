@@ -503,7 +503,7 @@ html:not(.js) .hero-trophy { opacity: 1; }
    CLASSIC: the field
    ========================================================================== */
 .classic {
-  padding-block: 0 clamp(72px, 8vw, 120px);
+  padding-block: 0 clamp(48px, 5vw, 80px);
   background: radial-gradient(60% 50% at 70% 55%, rgba(18, 163, 252, .05), transparent 70%), var(--ink-cool);
 }
 .field { position: relative; height: clamp(320px, 40vw, 560px); margin-top: clamp(24px, 3vw, 40px); }
@@ -562,7 +562,7 @@ html:not(.js) .hero-trophy { opacity: 1; }
    THE APP: one composition
    ========================================================================== */
 .app {
-  padding-block: clamp(96px, 10vw, 150px) clamp(64px, 7vw, 104px); overflow: hidden;
+  padding-block: clamp(96px, 10vw, 150px) clamp(32px, 4vw, 56px); overflow: hidden;
   background:
     radial-gradient(46% 40% at 50% 46%, rgba(255, 255, 255, .045), transparent 72%),
     linear-gradient(var(--ink-cool), var(--ink-stage) 260px);
@@ -583,8 +583,8 @@ html:not(.js) .hero-trophy { opacity: 1; }
 .dv-r { transform: translate(calc(-50% + var(--w) * .82 * var(--p) + 20px), calc(70px + (1 - var(--p)) * 30px)) rotate(calc(var(--p) * 4deg)); }
 .dv-l .screen > img, .dv-r .screen > img { filter: brightness(.72) saturate(.9); }
 .facts {
-  margin-top: clamp(24px, 3vw, 40px); display: flex; justify-content: center; flex-wrap: wrap; gap: 12px 48px;
-  color: var(--soft); font-size: 15px;
+  margin-top: clamp(24px, 3vw, 40px); max-width: none; display: flex; justify-content: center; flex-wrap: wrap; gap: 12px 40px;
+  color: var(--soft); font-size: 14.5px;
 }
 .facts b { color: var(--text); font-weight: 600; }
 
@@ -595,7 +595,7 @@ html:not(.js) .hero-trophy { opacity: 1; }
   padding-block: 0 clamp(96px, 11vw, 150px); text-align: center; overflow: hidden;
   background: linear-gradient(var(--ink-stage), var(--ink-0) 200px);
 }
-.closing-chart { position: relative; height: clamp(300px, 34vw, 460px); }
+.closing-chart { position: relative; height: clamp(280px, 30vw, 420px); }
 .closing-chart .market-line { position: absolute; left: 0; bottom: 0; width: 100%; height: calc(100% - clamp(130px, 13vw, 180px)); }
 .closing-trophy {
   position: absolute; left: var(--tx, 50%); top: var(--ty, 10%); width: clamp(110px, 11vw, 160px);
@@ -657,6 +657,7 @@ html:not(.js) .hero-trophy { opacity: 1; }
   .hero-chart .market-line { top: 140px; height: calc(100% - 52px - 140px); }
   .hero-trophy { width: 132px; }
   .hero-note { display: none; }
+  .h-intro span { display: block; }
   .axis li { font-size: 11px; }
   .sb-n { font-size: clamp(50px, 15vw, 64px); }
   .sb-who { font-size: 14px; }

@@ -385,7 +385,8 @@
   var runnerPaths = [];
   function walk(r, t) {
     var amp = 2.6 * Math.sqrt(t) * (1 - Math.pow(t, 6));
-    var n = Math.sin(t * (9 + r.seed % 5) + r.seed) * .6 + Math.sin(t * (23 + r.seed % 7) + r.seed * 1.7) * .4;
+    var n = Math.sin(t * (9 + r.seed % 5) + r.seed) * .6 + Math.sin(t * (23 + r.seed % 7) + r.seed * 1.7) * .4 +
+      Math.sin(t * (97 + r.seed) + r.seed * 2.3) * .16 + Math.sin(t * (151 + r.seed * 3)) * .1;
     return r.v * (t * .35 + .65 * t * t) + n * amp;
   }
   function buildField() {
@@ -404,7 +405,7 @@
     [-5, 0, 5, 10, 15].forEach(function (v) {
       grid.appendChild(el('line', { x1: x0, x2: w - (narrow ? 16 : x0 * .5), y1: Y(v), y2: Y(v) }));
       if (!narrow || v === 0) {
-        var t = el('text', { x: narrow ? x0 : x0 - 12, y: Y(v) + (narrow ? -6 : 4), 'text-anchor': narrow ? 'start' : 'end' });
+        var t = el('text', { x: narrow ? x0 : x0 - 12, y: Y(v) + (narrow ? 34 : 4), 'text-anchor': narrow ? 'start' : 'end' });
         t.textContent = v === 0 ? '$100,000' : (v > 0 ? '+' : MINUS) + Math.abs(v) + '%';
         grid.appendChild(t);
       }
@@ -413,7 +414,7 @@
     runnerPaths = [];
     var ends = [];
     RUNNERS.slice().reverse().forEach(function (r) {
-      var N = 64, pts = [];
+      var N = 120, pts = [];
       for (var i = 0; i <= N; i++) { var t = i / N; pts.push([x0 + (x1 - x0) * t, Y(walk(r, t))]); }
       var p = el('path', { class: 'runner ' + (r.cls || ''), d: pathOf(pts), pathLength: 1 });
       fieldSvg.appendChild(p);
@@ -437,7 +438,7 @@
     var p = 1;
     if (!reduce) {
       var r = field.getBoundingClientRect(), vh = window.innerHeight;
-      p = clamp((vh * .9 - r.top) / (r.height + vh * .3), 0, 1);
+      p = clamp((vh * .95 - r.top) / (r.height + vh * .1), 0, 1);
       p = 1 - Math.pow(1 - p, 2);
     }
     runnerPaths.forEach(function (path) { path.style.strokeDasharray = '1 1'; path.style.strokeDashoffset = String(1 - p); });

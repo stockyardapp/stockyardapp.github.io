@@ -1,7 +1,7 @@
 /* Stockyard marketing site. Progressive enhancement only: without this file
-   every section still reads in full. It draws the market line wherever it
-   appears (hero, the fork, the classic field, the close), runs the fantasy
-   week on its one app surface, and wires the two settings switches. */
+   every section still reads in full. It draws the market line where it
+   appears (the hero, the classic field, the close), runs the fantasy week on
+   its one phone, and wires the two settings switches. */
 (function () {
   'use strict';
 
@@ -92,20 +92,33 @@
   function pathOf(pts) {
     return pts.map(function (p, i) { return (i ? 'L' : 'M') + p[0].toFixed(1) + ',' + p[1].toFixed(1); }).join(' ');
   }
+  /* The same points, eased through with a light Catmull-Rom: every vertex is
+     still a real close, the line just stops looking like a ruler drew it. */
+  function smoothOf(pts, t) {
+    t = t == null ? .5 : t;
+    var d = 'M' + pts[0][0].toFixed(1) + ',' + pts[0][1].toFixed(1);
+    for (var i = 0; i < pts.length - 1; i++) {
+      var p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
+      var c1x = p1[0] + (p2[0] - p0[0]) / 6 * t * 2, c1y = p1[1] + (p2[1] - p0[1]) / 6 * t * 2;
+      var c2x = p2[0] - (p3[0] - p1[0]) / 6 * t * 2, c2y = p2[1] - (p3[1] - p1[1]) / 6 * t * 2;
+      d += ' C' + c1x.toFixed(1) + ',' + c1y.toFixed(1) + ' ' + c2x.toFixed(1) + ',' + c2y.toFixed(1) + ' ' + p2[0].toFixed(1) + ',' + p2[1].toFixed(1);
+    }
+    return d;
+  }
 
   function buildLine(svg) {
     var box = svg.getBoundingClientRect();
     var w = Math.max(1, box.width), h = Math.max(1, box.height);
     var end = Number(narrowMQ.matches ? (svg.dataset.endNarrow || svg.dataset.end) : svg.dataset.end) || 1;
     var pts = linePoints(w, h, end);
-    var d = pathOf(pts);
+    var d = smoothOf(pts, .45);
     var last = pts[pts.length - 1];
     var id = svg.dataset.gid || ('ml' + (++lineId));
     svg.dataset.gid = id;
     svg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
     svg.innerHTML =
       '<defs><linearGradient id="' + id + '" x1="0" y1="0" x2="0" y2="1">' +
-      '<stop offset="0" stop-color="#22C55E" stop-opacity=".22"/>' +
+      '<stop offset="0" stop-color="#22C55E" stop-opacity=".16"/>' +
       '<stop offset="1" stop-color="#22C55E" stop-opacity="0"/></linearGradient></defs>' +
       '<path class="ml-area" fill="url(#' + id + ')" d="' + d + ' L' + last[0].toFixed(1) + ',' + h + ' L0,' + h + ' Z"/>' +
       '<path class="ml-stroke" d="' + d + '"/>';
@@ -142,13 +155,12 @@
 
   function placeHero(built) {
     var last = built.pts[built.pts.length - 1];
-    heroChart.style.setProperty('--tx', last[0] + 'px');
     var off = heroSvg.getBoundingClientRect().top - heroChart.getBoundingClientRect().top;
+    heroChart.style.setProperty('--tx', last[0] + 'px');
     heroChart.style.setProperty('--ty', (off + last[1] + 3) + 'px');
-    // Thursday's point carries the matchup tip
-    var thu = built.pts[12];
-    heroChart.style.setProperty('--px', thu[0] + 'px');
-    heroChart.style.setProperty('--py', (off + thu[1]) + 'px');
+    // the week's result sits in the ground under Friday's close
+    heroChart.style.setProperty('--nx', (last[0] - 28) + 'px');
+    heroChart.style.setProperty('--ny', (off + last[1] + 56) + 'px');
     var span = last[0];
     var gutter = parseFloat(getComputedStyle($('.hero-copy')).paddingLeft) + $('.hero-copy').getBoundingClientRect().left;
     $$('.axis li', heroChart).forEach(function (li, i) { li.style.left = (gutter + (span - gutter) * i / 4) + 'px'; });
@@ -177,60 +189,22 @@
     placeClose(drawLine(closeSvg, 100, function () { closing.classList.add('is-landed'); }));
   }, 0.3);
 
-  /* ---------- the fork: one line, three ways to play ---------- */
-  var fork = $('#fork');
-  var forkSvg = $('.fork-lines');
-  function buildFork() {
-    var r = fork.getBoundingClientRect();
-    var w = r.width, h = r.height;
-    forkSvg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
-    forkSvg.innerHTML = '';
-    var targets = $$('.branch', fork).map(function (b) {
-      var t = $('.branch-title', b).getBoundingClientRect();
-      return { x: b.getBoundingClientRect().left - r.left, y: t.top - r.top + Math.min(t.height, 40) / 2 };
-    });
-    var paths = [];
-    if (narrowMQ.matches) {
-      var x = 8;
-      paths.push(el('path', { class: 'trunk', d: 'M' + x + ',0 V' + targets[0].y }));
-      targets.forEach(function (t, i) {
-        var d = i === 0
-          ? 'M' + x + ',' + t.y + ' H' + (t.x + 8)
-          : 'M' + x + ',' + targets[0].y + ' V' + (t.y - 12) + ' Q' + x + ',' + t.y + ' ' + (x + 12) + ',' + t.y + ' H' + (t.x + 8);
-        paths.push(el('path', { class: 'b' + i, d: d }));
-      });
-    } else {
-      var kx = targets[0].x * .58, ky = targets[0].y, R = 16;
-      // the trunk is the intro curve again, climbing into the knot
-      var seg = CURVE.map(function (p) { return [p[0] * kx, ky + 46 - p[1] * 46 / .94]; });
-      paths.push(el('path', { class: 'trunk', d: pathOf(seg) }));
-      // fantasy carries straight on; the other two drop off like a bracket
-      var bx = kx + (targets[0].x - kx) * .45;
-      targets.forEach(function (t, i) {
-        var tx = t.x + 10;
-        var d = i === 0
-          ? 'M' + kx + ',' + ky + ' H' + tx
-          : 'M' + bx + ',' + ky + ' V' + (t.y - R) + ' Q' + bx + ',' + t.y + ' ' + (bx + R) + ',' + t.y + ' H' + tx;
-        paths.push(el('path', { class: 'b' + i, d: d }));
-      });
-      forkSvg.appendChild(el('circle', { class: 'knot', cx: kx, cy: ky, r: 5, stroke: '#22C55E' }));
+  /* ---------- the modes scoreboard counts in once ---------- */
+  function countIn(nodes, dur, delay) {
+    if (reduce) return;
+    var t0 = null;
+    nodes.forEach(function (n) { n.textContent = fmt(0); });
+    function tick(t) {
+      if (t0 === null) t0 = t;
+      var k = clamp((t - t0 - delay) / dur, 0, 1), e = 1 - Math.pow(1 - k, 3);
+      nodes.forEach(function (n) { n.textContent = fmt(Number(n.dataset.to) * e); });
+      if (k < 1) requestAnimationFrame(tick);
     }
-    paths.forEach(function (p) { forkSvg.insertBefore(p, forkSvg.firstChild); });
-    return paths;
+    requestAnimationFrame(tick);
   }
-  var forkPaths = buildFork();
-  if (!reduce) {
-    forkPaths.forEach(function (p) { var L = p.getTotalLength(); p.style.strokeDasharray = L; p.style.strokeDashoffset = L; });
-    onView(fork, function () {
-      forkPaths.forEach(function (p, i) {
-        var L = p.getTotalLength();
-        var a = p.animate([{ strokeDashoffset: L }, { strokeDashoffset: 0 }],
-          { duration: i === 0 ? 700 : 650, delay: i === 0 ? 0 : 600 + (i - 1) * 140, easing: 'cubic-bezier(.33,1,.68,1)', fill: 'forwards' });
-        a.onfinish = function () { p.style.strokeDasharray = ''; p.style.strokeDashoffset = ''; a.cancel(); };
-      });
-      fork.dataset.drawn = '1';
-    }, 0.4);
-  }
+  var board = $('.scoreboard');
+  var boardNums = $$('[data-to]', board);
+  if (!reduce) { boardNums.forEach(function (n) { n.textContent = fmt(0); }); onView(board, function () { countIn(boardNums, 1200, 150); }, 0.5); }
 
   /* ---------- the fantasy week ---------- */
   function fmt(v) { return (v < 0 ? MINUS : '') + Math.abs(v).toFixed(2); }
@@ -251,19 +225,7 @@
     });
   }
 
-  function countUp(stage) {
-    if (reduce) return;
-    var nums = $$('.l-match [data-to]', stage);
-    var t0 = null, dur = 1100;
-    nums.forEach(function (n) { n.textContent = fmt(0); });
-    function tick(t) {
-      if (t0 === null) t0 = t;
-      var k = clamp((t - t0 - 250) / dur, 0, 1), e = 1 - Math.pow(1 - k, 3);
-      nums.forEach(function (n) { n.textContent = fmt(Number(n.dataset.to) * e); });
-      if (k < 1) requestAnimationFrame(tick);
-    }
-    requestAnimationFrame(tick);
-  }
+  function countUp(stage) { countIn($$('.l-match [data-to]', stage), 1100, 250); }
 
   function climb(stage) {
     if (reduce) return;
@@ -285,9 +247,8 @@
     if (hooks[i] && (prev !== i || i === 0)) hooks[i](stage);
   }
 
-  var pinStage = $('.fx-pin .stage');
-  var rail = $('.rail');
-  var railItems = $$('.rail li');
+  var pinDevice = $('.fx-pin .device');
+  var pinStage = $('.stage', pinDevice);
   var fxSteps = $$('.fx-step');
 
   // Phones: every step gets its own copy of the surface, staged one state
@@ -296,9 +257,10 @@
     var wrap = document.createElement('div');
     wrap.className = 'step-stage';
     wrap.setAttribute('aria-hidden', 'true');
-    var copy = pinStage.cloneNode(true);
+    var dev = pinDevice.cloneNode(true);
+    var copy = $('.stage', dev);
     copy.dataset.step = String(i === 2 ? 1 : i);
-    wrap.appendChild(copy);
+    wrap.appendChild(dev);
     step.appendChild(wrap);
     onView(wrap, function () { delete copy.dataset.live; setStageStep(copy, i); }, 0.5);
   });
@@ -308,7 +270,6 @@
     if (i === active) return;
     active = i;
     fxSteps.forEach(function (s, k) { s.classList.toggle('is-active', k === i); });
-    railItems.forEach(function (r, k) { r.classList.toggle('on', k <= i); });
     setStageStep(pinStage, i);
   }
   if ('IntersectionObserver' in window) {
@@ -318,15 +279,6 @@
     fxSteps.forEach(function (s) { stepIO.observe(s); });
   }
   activate(0);
-
-  addScrubber($('#fantasy'), function () {
-    if (narrowMQ.matches) return;
-    var vh = window.innerHeight;
-    var a = fxSteps[0].getBoundingClientRect(), b = fxSteps[fxSteps.length - 1].getBoundingClientRect();
-    var c0 = a.top + a.height / 2, c1 = b.top + b.height / 2;
-    var p = clamp((vh / 2 - c0) / (c1 - c0), 0, 1);
-    rail.style.setProperty('--rp', p.toFixed(3));
-  });
 
   /* ---------- settings: two switches, one roster ---------- */
   var roster = $('.roster');
@@ -401,16 +353,11 @@
     function Y(v) { return 18 + (hi - v) / (hi - lo) * (h - 36); }
     fieldSvg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
     fieldSvg.innerHTML = '';
-    var grid = el('g', { class: 'grid' });
-    [-5, 0, 5, 10, 15].forEach(function (v) {
-      grid.appendChild(el('line', { x1: x0, x2: w - (narrow ? 16 : x0 * .5), y1: Y(v), y2: Y(v) }));
-      if (!narrow || v === 0) {
-        var t = el('text', { x: narrow ? x0 : x0 - 12, y: Y(v) + (narrow ? 34 : 4), 'text-anchor': narrow ? 'start' : 'end' });
-        t.textContent = v === 0 ? '$100,000' : (v > 0 ? '+' : MINUS) + Math.abs(v) + '%';
-        grid.appendChild(t);
-      }
-    });
-    fieldSvg.appendChild(grid);
+    // one reference only: where everyone started
+    fieldSvg.appendChild(el('line', { class: 'base', x1: x0, x2: x1, y1: Y(0), y2: Y(0) }));
+    var o = el('text', { class: 'origin-label', x: narrow ? x0 : x0 - 14, y: Y(0) + (narrow ? 30 : 4), 'text-anchor': narrow ? 'start' : 'end' });
+    o.textContent = '$100,000';
+    fieldSvg.appendChild(o);
     runnerPaths = [];
     var ends = [];
     RUNNERS.slice().reverse().forEach(function (r) {
@@ -465,11 +412,12 @@
     });
   });
 
-  /* ---------- the app gallery opens as it arrives ---------- */
+  /* ---------- the showcase settles as it arrives ---------- */
   var gallery = $('#gallery');
   if (!reduce) addScrubber(gallery, function () {
+    if (window.innerWidth <= 720) { gallery.style.setProperty('--p', 1); return; }
     var r = gallery.getBoundingClientRect(), vh = window.innerHeight;
-    var p = clamp((vh - r.top) / (vh * .75), 0, 1);
+    var p = clamp((vh * 1.05 - r.top) / (vh * .7), 0, 1);
     gallery.style.setProperty('--p', (1 - Math.pow(1 - p, 3)).toFixed(3));
   });
 
@@ -481,16 +429,9 @@
       placeHero(buildLine(heroSvg)); heroSvg.classList.add('is-drawn');
       if (closeSvg.dataset.drawn || reduce) { placeClose(buildLine(closeSvg)); closeSvg.classList.add('is-drawn'); }
       else placeClose(buildLine(closeSvg));
-      buildFork(); buildField();
+      buildField();
     }, 150);
   });
-  // fonts change text metrics the fork measures
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () {
-    if (!fork.dataset.drawn) forkPaths = buildFork().map(function (p) {
-      if (!reduce) { var L = p.getTotalLength(); p.style.strokeDasharray = L; p.style.strokeDashoffset = L; }
-      return p;
-    });
-    else buildFork();
-    buildField();
-  });
+  // fonts change the heading metrics the field measures
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(buildField);
 })();

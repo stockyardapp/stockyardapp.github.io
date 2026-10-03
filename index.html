@@ -1,21 +1,299 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Stockyard</title>
-<link rel="icon" href="data:,">
+<title>Stockyard — Fantasy leagues for the stock market</title>
+<meta name="description" content="Draft real stocks, set a weekly lineup, and play your friends head to head. Practice money only — nothing real is ever at risk.">
+<meta property="og:title" content="Stockyard — Fantasy leagues for the stock market">
+<meta property="og:description" content="Draft real stocks, set a weekly lineup, and play your friends head to head.">
+<meta name="theme-color" content="#0B1220">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..900&family=IBM+Plex+Mono:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  body{font-family:-apple-system,system-ui,sans-serif;background:#0A0A0B;color:#F5F6F8;
-    display:flex;min-height:100vh;align-items:center;justify-content:center;margin:0;padding:24px;text-align:center}
-  h1{font-size:24px;font-weight:800;margin:0 0 6px}
-  p{color:#8A9099;font-size:14px;line-height:20px;margin:0}
+  :root{
+    --ink:#0B1220; --field:#111A2E; --line:#1F2A44;
+    --paper:#EEF1F7; --muted:#8A94A8;
+    --blue:#2F80ED; --gold:#D79A2B;
+    --display:'Archivo',system-ui,sans-serif;
+    --body:'Inter',system-ui,sans-serif;
+    --mono:'IBM Plex Mono',ui-monospace,monospace;
+    --gutter:clamp(16px,4vw,48px);
+    --max:1120px;
+    color-scheme:dark;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--ink);color:var(--paper);font:400 16px/1.6 var(--body);overflow-x:hidden}
+  a{color:inherit}
+  a:focus-visible,button:focus-visible{outline:2px solid var(--blue);outline-offset:3px;border-radius:4px}
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 var(--gutter)}
+
+  /* Nav */
+  .nav{display:flex;align-items:center;justify-content:space-between;padding-block:20px}
+  .brand{display:flex;align-items:center;gap:10px;text-decoration:none;
+    font:800 20px/1 var(--display);font-stretch:112%;letter-spacing:.01em}
+  .brand img{width:32px;height:32px;border-radius:8px}
+  .nav ul{display:flex;gap:24px;list-style:none;margin:0;padding:0}
+  .nav ul a{color:var(--muted);text-decoration:none;font-size:14px;font-weight:500}
+  .nav ul a:hover{color:var(--paper)}
+
+  /* Hero */
+  .hero{display:grid;grid-template-columns:1.05fr 1fr;gap:56px;align-items:center;padding-block:56px 96px}
+  h1{font:900 clamp(56px,8.4vw,112px)/.86 var(--display);font-stretch:68%;
+    text-transform:uppercase;letter-spacing:-.005em;margin:0 0 28px}
+  h1 span{display:block}
+  h1 .dim{color:var(--muted)}
+  .lede{font-size:18px;color:#C3CADA;max-width:30em;margin:0 0 32px}
+  .cta{display:flex;flex-wrap:wrap;align-items:center;gap:20px}
+  .soon{display:inline-flex;align-items:center;gap:10px;padding:13px 20px;border-radius:999px;
+    background:var(--blue);color:#fff;font-weight:600;font-size:15px}
+  .soon svg{width:16px;height:16px}
+  .textlink{font-size:15px;font-weight:500;color:var(--muted);text-decoration:none;border-bottom:1px solid var(--line)}
+  .textlink:hover{color:var(--paper);border-color:var(--muted)}
+
+  /* Draft board — the signature */
+  .board{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:18px 0 14px}
+  .board-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;
+    font:600 12px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+  .board-head b{color:var(--paper);font-weight:600}
+  .clock{color:var(--blue)}
+  .grid{display:grid;grid-template-columns:34px repeat(6,1fr);gap:4px}
+  .th{font:600 11px/1 var(--mono);color:var(--muted);text-align:center;padding:0 0 8px;letter-spacing:.04em}
+  .th.you{color:var(--blue)}
+  .rd{font:600 11px/1 var(--mono);color:var(--muted);display:flex;align-items:center;gap:3px}
+  .cell{height:44px;display:flex;align-items:center;justify-content:center;
+    background:var(--field);border-radius:6px;
+    font:600 clamp(11px,1.25vw,14px)/1 var(--mono);letter-spacing:.02em;color:transparent;
+    transition:background .25s,color .25s,box-shadow .25s}
+  .cell.you{background:#14223D}
+  .cell.taken{color:var(--paper)}
+  .cell.you.taken{color:#8DB8F5}
+  .cell.now{box-shadow:inset 0 0 0 1.5px var(--blue);color:var(--blue)}
+  .cell.now::after{content:'';width:6px;height:6px;border-radius:50%;background:var(--blue);animation:blink 1s steps(2) infinite}
+  .cell.taken.pop{animation:pop .35s ease-out}
+  @keyframes blink{50%{opacity:0}}
+  @keyframes pop{from{transform:scale(.88)}to{transform:none}}
+  .board-note{margin:14px 0 0;font-size:13px;color:var(--muted)}
+  .board-note b{color:var(--paper);font-weight:500}
+
+  /* Sections */
+  section{padding:88px 0;border-top:1px solid var(--line)}
+  .kicker{font:600 12px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--blue);margin:0 0 16px}
+  h2{font:850 clamp(36px,5vw,60px)/.95 var(--display);font-stretch:72%;text-transform:uppercase;margin:0 0 48px;max-width:14em}
+
+  .season{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line)}
+  .season li{padding:24px 24px 0 0;position:relative}
+  .season li+li{padding-left:24px;border-left:1px solid var(--line)}
+  .when{font:600 12px/1 var(--mono);color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+  .season h3{font:800 26px/1 var(--display);font-stretch:85%;margin:14px 0 10px;text-transform:uppercase}
+  .season p{margin:0;color:#B8C0D0;font-size:15px}
+
+  .modes{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:56px;border-top:1px solid var(--line)}
+  .modes div{padding:22px 24px 0 0}
+  .modes div+div{padding-left:24px;border-left:1px solid var(--line)}
+  .modes h4{margin:0 0 6px;font:600 15px/1.3 var(--body)}
+  .modes p{margin:0;color:var(--muted);font-size:14px}
+
+  .clubs{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start}
+  .clubs h2{margin-bottom:0}
+  .clubs ul{list-style:none;margin:0;padding:0}
+  .clubs li{padding:18px 0;border-bottom:1px solid var(--line);display:grid;grid-template-columns:150px 1fr;gap:16px}
+  .clubs li:first-child{border-top:1px solid var(--line)}
+  .clubs dt,.clubs .k{font:600 13px/1.5 var(--mono);color:var(--paper)}
+  .clubs .v{color:#B8C0D0;font-size:15px}
+
+  .money{display:grid;grid-template-columns:auto 1fr;gap:32px;align-items:center}
+  .money .big{font:900 clamp(64px,10vw,128px)/.85 var(--display);font-stretch:62%;text-transform:uppercase;color:var(--paper)}
+  .money .big em{font-style:normal;color:var(--blue)}
+  .money p{margin:0 0 10px;color:#B8C0D0;max-width:32em}
+
+  footer{border-top:1px solid var(--line);padding:32px 0 48px;color:var(--muted);font-size:14px}
+  footer .wrap{display:flex;flex-wrap:wrap;gap:16px 28px;justify-content:space-between}
+  footer nav{display:flex;flex-wrap:wrap;gap:20px}
+  footer a{text-decoration:none}
+  footer a:hover{color:var(--paper)}
+
+  @media (max-width:900px){
+    .hero{grid-template-columns:1fr;gap:48px;padding-block:32px 72px}
+    .season{grid-template-columns:1fr 1fr}
+    .season li:nth-child(3){padding-left:0;border-left:0}
+    .season li{padding-bottom:28px}
+    .clubs{grid-template-columns:1fr;gap:32px}
+  }
+  @media (max-width:600px){
+    .nav ul{gap:16px}
+    .nav ul li.opt{display:none}
+    .season,.modes{grid-template-columns:1fr}
+    .season li,.season li+li,.modes div,.modes div+div{padding:22px 0;border-left:0}
+    .season li+li,.modes div+div{border-top:1px solid var(--line)}
+    .clubs li{grid-template-columns:1fr;gap:4px}
+    .money{grid-template-columns:1fr;gap:16px}
+    .grid{grid-template-columns:28px repeat(6,1fr);gap:3px}
+    .cell{height:38px}
+    section{padding:64px 0}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .cell,.cell.taken.pop{transition:none;animation:none}
+    .cell.now::after{animation:none}
+  }
 </style>
 </head>
 <body>
-<div>
-  <h1>Stockyard</h1>
-  <p>Fantasy sports, but for the stock market.</p>
-</div>
+
+<header class="wrap nav">
+  <a class="brand" href="./" aria-label="Stockyard home"><img src="icon.svg" alt="">Stockyard</a>
+  <nav aria-label="Main">
+    <ul>
+      <li class="opt"><a href="#season">How it works</a></li>
+      <li class="opt"><a href="#clubs">For clubs</a></li>
+      <li><a href="mailto:stockyard.app@gmail.com">Contact</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main>
+  <div class="wrap hero">
+    <div>
+      <h1><span>Draft stocks.</span><span class="dim">Play your</span><span>friends.</span></h1>
+      <p class="lede">Stockyard is fantasy football for the stock market. Draft a roster of real companies, set your lineup each week, and go head to head with your league. It runs on practice money, so nothing real is ever at risk.</p>
+      <div class="cta">
+        <span class="soon"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M11.2 8.5c0-1.7 1.4-2.5 1.5-2.6-.8-1.2-2.1-1.3-2.5-1.3-1.1-.1-2.1.6-2.6.6-.6 0-1.4-.6-2.3-.6-1.2 0-2.3.7-2.9 1.8-1.3 2.2-.3 5.4.9 7.1.6.9 1.3 1.8 2.2 1.8.9 0 1.2-.6 2.3-.6s1.4.6 2.3.6c1 0 1.6-.9 2.1-1.7.7-1 1-1.9 1-2-.1 0-2-.8-2-3.1zM9.6 3.4c.5-.6.8-1.4.7-2.2-.7 0-1.6.5-2.1 1.1-.5.5-.9 1.3-.8 2.1.8.1 1.7-.4 2.2-1z"/></svg>Coming to the App Store this fall</span>
+        <a class="textlink" href="#season">How a season works</a>
+      </div>
+    </div>
+
+    <figure class="board" aria-label="A six-team snake draft filling in, round by round" style="margin:0">
+      <div class="board-head"><span>Live draft · <b>6 teams</b></span><span class="clock" id="clock" aria-live="off">Round 1 · Pick 1</span></div>
+      <div class="grid" id="grid"></div>
+      <figcaption class="board-note">Snake order, and <b>every stock can be drafted once</b>. If someone takes NVDA before you, you'll need a different pick.</figcaption>
+    </figure>
+  </div>
+
+  <section id="season">
+    <div class="wrap">
+      <p class="kicker">How a season works</p>
+      <h2>A season, start to finish</h2>
+      <ol class="season">
+        <li><span class="when">Before week 1</span><h3>Draft</h3><p>Take turns picking real stocks and ETFs in a snake draft. Every pick is yours alone for the season.</p></li>
+        <li><span class="when">Each weekend</span><h3>Set your lineup</h3><p>Start the stocks you believe in and bench the rest. Claim free agents and trade with other managers.</p></li>
+        <li><span class="when">Monday – Friday</span><h3>Matchup</h3><p>Your starters play your opponent's. Points come from how much your lineup gains that week.</p></li>
+        <li><span class="when">End of season</span><h3>Playoffs</h3><p>The top records make a bracket. One team takes the trophy, and everyone gets a season recap.</p></li>
+      </ol>
+
+      <div class="modes">
+        <div><h4>Fantasy leagues</h4><p>The draft, weekly matchups and playoffs described above.</p></div>
+        <div><h4>Classic leagues</h4><p>Everyone starts with the same practice cash and trades any stock. The best portfolio at the end wins.</p></div>
+        <div><h4>Solo</h4><p>No league needed. Build a portfolio and track your trades on your own.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="clubs">
+    <div class="wrap clubs">
+      <div>
+        <p class="kicker">For clubs and classes</p>
+        <h2>Run your group's league</h2>
+      </div>
+      <ul>
+        <li><span class="k">Who it's for</span><span class="v">Investment clubs, business fraternities, finance classes, student-managed funds and groups of friends.</span></li>
+        <li><span class="k">Getting in</span><span class="v">Members join from an invite link or code. No setup on their end.</span></li>
+        <li><span class="k">Commissioner</span><span class="v">The organizer sets the start date, budget and draft time, and manages members.</span></li>
+        <li><span class="k">Learning</span><span class="v">A trade coach and research tools show members why their picks worked, or didn't.</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap money">
+      <div class="big">No real<br><em>money.</em></div>
+      <div>
+        <p>Stockyard uses real market prices with practice money. You can't deposit, withdraw, bet or win cash, and no trade ever reaches a real exchange.</p>
+        <p>It's a game for learning how markets move, with friends keeping score.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 Stockyard</span>
+    <nav aria-label="Legal">
+      <a href="https://dsouzareh631-ship-it.github.io/stockyard-legal/privacy.html">Privacy</a>
+      <a href="https://dsouzareh631-ship-it.github.io/stockyard-legal/terms.html">Terms</a>
+      <a href="https://dsouzareh631-ship-it.github.io/stockyard-legal/support.html">Support</a>
+      <a href="mailto:stockyard.app@gmail.com">stockyard.app@gmail.com</a>
+    </nav>
+  </div>
+</footer>
+
+<script>
+(function () {
+  // Picks in draft order. Tickers only: the board shows WHO took WHAT, never a price.
+  var PICKS = ['NVDA','MSFT','AAPL','AMZN','GOOGL','META',
+               'TSLA','AVGO','LLY','JPM','V','COST',
+               'NFLX','AMD','XOM','UNH','MA','WMT',
+               'PLTR','COIN','ORCL','HD','KO','CRM',
+               'UBER','SPY','QQQ','DIS','BA','NKE'];
+  var TEAMS = 6, ROUNDS = 5, YOU = 2; // the viewer drafts from slot 3
+  var grid = document.getElementById('grid');
+  var clock = document.getElementById('clock');
+
+  // Header row
+  grid.appendChild(el('div', 'th', ''));
+  for (var t = 0; t < TEAMS; t++) grid.appendChild(el('div', 'th' + (t === YOU ? ' you' : ''), t === YOU ? 'YOU' : 'T' + (t + 1)));
+
+  // Rows; snake: odd rounds run right-to-left
+  var cells = []; // cells[round][team]
+  for (var r = 0; r < ROUNDS; r++) {
+    grid.appendChild(el('div', 'rd', 'R' + (r + 1) + (r % 2 ? '←' : '→')));
+    cells[r] = [];
+    for (var c = 0; c < TEAMS; c++) {
+      var cell = el('div', 'cell' + (c === YOU ? ' you' : ''), '');
+      grid.appendChild(cell);
+      cells[r][c] = cell;
+    }
+  }
+
+  function slotFor(n) { // pick index → [round, team]
+    var r = Math.floor(n / TEAMS), i = n % TEAMS;
+    return [r, r % 2 ? TEAMS - 1 - i : i];
+  }
+  function label(n) {
+    var r = Math.floor(n / TEAMS);
+    return 'Round ' + (r + 1) + ' · Pick ' + (n + 1);
+  }
+
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduce) {
+    PICKS.forEach(function (sym, n) { var s = slotFor(n), x = cells[s[0]][s[1]]; x.textContent = sym; x.classList.add('taken'); });
+    clock.textContent = 'Draft complete';
+    return;
+  }
+
+  var n = 0;
+  function onClock() {
+    if (n >= PICKS.length) { clock.textContent = 'Draft complete'; setTimeout(reset, 3200); return; }
+    var s = slotFor(n), x = cells[s[0]][s[1]];
+    x.classList.add('now');
+    clock.textContent = label(n);
+    setTimeout(function () {
+      x.classList.remove('now');
+      x.textContent = PICKS[n];
+      x.classList.add('taken', 'pop');
+      n++;
+      setTimeout(onClock, 260);
+    }, s[1] === YOU ? 1100 : 520);
+  }
+  function reset() {
+    cells.forEach(function (row) { row.forEach(function (x) { x.textContent = ''; x.className = 'cell' + (x === row[YOU] ? ' you' : ''); }); });
+    n = 0; onClock();
+  }
+  function el(tag, cls, text) { var d = document.createElement(tag); d.className = cls; d.textContent = text; return d; }
+  setTimeout(onClock, 600);
+})();
+</script>
 </body>
 </html>

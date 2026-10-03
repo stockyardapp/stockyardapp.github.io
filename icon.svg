@@ -1,0 +1,249 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <!--
+    App icon — a softly-stylized 3D gold trophy: deep bulbous bowl holding
+    embossed market bars, an emerald arrow with a gold border climbing across it,
+    a sculpted stem and a dark charcoal plinth with a gold plaque, all on an
+    inset charcoal rounded panel. Built to match the reference render: layered
+    gold (pale highlight → saturated mid → amber shadow → brown recess), studio
+    light from the upper-left, contact shadows between every overlapping part.
+
+    Full-bleed by design: the outer square is the artwork's own bounds and the OS
+    applies its corner mask. The rounded PANEL inside it is a deliberate visual
+    element (the reference has one), not a stand-in for that mask.
+
+    Source of truth — scripts/make-icons.sh rasterizes every asset from this.
+  -->
+  <defs>
+    <!-- ── gold material ───────────────────────────────────────────────────── -->
+    <linearGradient id="cupGold" x1="0.12" y1="0" x2="0.88" y2="1">
+      <stop offset="0" stop-color="#FFE7A0"/>
+      <stop offset="0.18" stop-color="#F8D374"/>
+      <stop offset="0.44" stop-color="#EDB944"/>
+      <stop offset="0.72" stop-color="#D3931F"/>
+      <stop offset="1" stop-color="#A96A0E"/>
+    </linearGradient>
+    <linearGradient id="rimTop" x1="0.1" y1="0" x2="0.9" y2="1">
+      <stop offset="0" stop-color="#FFF3D2"/>
+      <stop offset="0.45" stop-color="#F8DA8A"/>
+      <stop offset="1" stop-color="#DDA02A"/>
+    </linearGradient>
+    <linearGradient id="rimFace" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#F9DA88"/>
+      <stop offset="0.35" stop-color="#EFC152"/>
+      <stop offset="1" stop-color="#BE821A"/>
+    </linearGradient>
+    <linearGradient id="handleGold" x1="0" y1="0" x2="0.7" y2="1">
+      <stop offset="0" stop-color="#FBDD8C"/>
+      <stop offset="0.4" stop-color="#EBB945"/>
+      <stop offset="0.75" stop-color="#C78A1D"/>
+      <stop offset="1" stop-color="#9C610C"/>
+    </linearGradient>
+    <linearGradient id="stemGold" x1="0.15" y1="0" x2="0.85" y2="1">
+      <stop offset="0" stop-color="#FBDF92"/>
+      <stop offset="0.42" stop-color="#EBBB48"/>
+      <stop offset="1" stop-color="#B0700F"/>
+    </linearGradient>
+    <linearGradient id="plaqueGold" x1="0" y1="0" x2="0.25" y2="1">
+      <stop offset="0" stop-color="#FFEDB4"/>
+      <stop offset="0.35" stop-color="#F3C75C"/>
+      <stop offset="0.7" stop-color="#DAA02C"/>
+      <stop offset="1" stop-color="#B8781A"/>
+    </linearGradient>
+    <linearGradient id="barGold" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#C88B1E"/>
+      <stop offset="0.25" stop-color="#B0740F"/>
+      <stop offset="1" stop-color="#855206"/>
+    </linearGradient>
+    <!-- The rim's inner lip: shadowed at the far (top) edge, catching light at
+         the near edge — so it reads as a recess in gold, not a hole. -->
+    <linearGradient id="rimInset" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8F5A08" stop-opacity="0.85"/>
+      <stop offset="0.55" stop-color="#C08214" stop-opacity="0.25"/>
+      <stop offset="1" stop-color="#FBDE8E" stop-opacity="0.55"/>
+    </linearGradient>
+
+    <!-- ── emerald arrow ───────────────────────────────────────────────────── -->
+    <linearGradient id="arrowGreen" x1="0" y1="1" x2="0.8" y2="0">
+      <stop offset="0" stop-color="#0B7A3C"/>
+      <stop offset="0.45" stop-color="#12933F"/>
+      <stop offset="1" stop-color="#2CBB63"/>
+    </linearGradient>
+
+    <!-- ── charcoal plinth ─────────────────────────────────────────────────── -->
+    <linearGradient id="plinth" x1="0.2" y1="0" x2="0.8" y2="1">
+      <stop offset="0" stop-color="#3A3E46"/>
+      <stop offset="0.35" stop-color="#252930"/>
+      <stop offset="1" stop-color="#14171C"/>
+    </linearGradient>
+    <linearGradient id="plinthLow" x1="0.2" y1="0" x2="0.8" y2="1">
+      <stop offset="0" stop-color="#32363D"/>
+      <stop offset="1" stop-color="#101317"/>
+    </linearGradient>
+
+    <!-- ── background panel ────────────────────────────────────────────────── -->
+    <linearGradient id="panel" x1="0.15" y1="0" x2="0.85" y2="1">
+      <stop offset="0" stop-color="#26282D"/>
+      <stop offset="0.5" stop-color="#191B1F"/>
+      <stop offset="1" stop-color="#101114"/>
+    </linearGradient>
+    <linearGradient id="panelEdge" x1="0" y1="0" x2="0.6" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.14"/>
+      <stop offset="0.45" stop-color="#FFFFFF" stop-opacity="0.02"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="vignette" cx="0.5" cy="0.42" r="0.72">
+      <stop offset="0.55" stop-color="#000000" stop-opacity="0"/>
+      <stop offset="1" stop-color="#000000" stop-opacity="0.38"/>
+    </radialGradient>
+    <radialGradient id="goldGlow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#E8B23A" stop-opacity="0.20"/>
+      <stop offset="1" stop-color="#E8B23A" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- ── lighting helpers ────────────────────────────────────────────────── -->
+    <linearGradient id="specular" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="cupInnerShade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7A4A05" stop-opacity="0.75"/>
+      <stop offset="1" stop-color="#7A4A05" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="cupRightShade" x1="0" y1="0" x2="1" y2="0.3">
+      <stop offset="0" stop-color="#8A5405" stop-opacity="0"/>
+      <stop offset="1" stop-color="#7A4805" stop-opacity="0.5"/>
+    </linearGradient>
+
+    <filter id="dropTrophy" x="-25%" y="-25%" width="150%" height="150%">
+      <feDropShadow dx="0" dy="16" stdDeviation="18" flood-color="#000000" flood-opacity="0.55"/>
+    </filter>
+    <filter id="softBlur" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="9"/>
+    </filter>
+    <filter id="bigBlur" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="22"/>
+    </filter>
+    <filter id="arrowLift" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="-4" dy="9" stdDeviation="7" flood-color="#5A3603" flood-opacity="0.6"/>
+    </filter>
+
+    <!-- The bowl: wide at the rim, gently bulbous, tapering into a narrow
+         rounded base that meets the stem — a trophy cup, not a mug.
+         Reused for clipping the bars + the inner shading. -->
+    <path id="cup" d="M296 300
+      C292 404 330 542 438 592
+      C476 606 548 606 586 592
+      C694 542 732 404 728 300 Z"/>
+    <clipPath id="cupClip"><use href="#cup"/></clipPath>
+    <clipPath id="panelClip"><rect x="96" y="96" width="832" height="832" rx="198"/></clipPath>
+  </defs>
+
+  <!-- ── background: near-black square + inset rounded charcoal panel ──────── -->
+  <rect width="1024" height="1024" fill="#08090A"/>
+  <g>
+    <rect x="96" y="96" width="832" height="832" rx="198" fill="url(#panel)"/>
+    <g clip-path="url(#panelClip)">
+      <rect x="96" y="96" width="832" height="832" fill="url(#vignette)"/>
+      <ellipse cx="512" cy="470" rx="330" ry="300" fill="url(#goldGlow)"/>
+    </g>
+    <!-- glassy edge highlight along the upper-left of the panel -->
+    <rect x="97.5" y="97.5" width="829" height="829" rx="197"
+          fill="none" stroke="url(#panelEdge)" stroke-width="3"/>
+  </g>
+
+  <g filter="url(#dropTrophy)">
+    <!-- ── handles: solid gold bands with dark interior openings ─────────────
+         Both ends run to x=400/624 — well INSIDE the bowl's silhouette — so the
+         band's cut edges are hidden under the cup instead of leaving a notch. -->
+    <g>
+      <path d="M400 318 C240 300 164 348 164 424 C164 508 250 566 400 552
+               L400 508 C280 520 208 476 208 424 C208 372 280 340 400 352 Z"
+            fill="url(#handleGold)"/>
+      <path d="M330 326 C232 330 184 358 180 420" fill="none" stroke="#FFE49A"
+            stroke-opacity="0.5" stroke-width="9" stroke-linecap="round" filter="url(#softBlur)"/>
+      <path d="M624 318 C784 300 860 348 860 424 C860 508 774 566 624 552
+               L624 508 C744 520 816 476 816 424 C816 372 744 340 624 352 Z"
+            fill="url(#handleGold)"/>
+      <path d="M772 356 C834 380 840 474 782 524" fill="none" stroke="#7A4A05"
+            stroke-opacity="0.45" stroke-width="10" stroke-linecap="round" filter="url(#softBlur)"/>
+    </g>
+
+    <!-- ── the bowl ────────────────────────────────────────────────────────── -->
+    <use href="#cup" fill="url(#cupGold)"/>
+
+    <g clip-path="url(#cupClip)">
+      <!-- five embossed market bars, rising left → right: darker amber than the
+           bowl so they read through it, each with a lit left edge + top face -->
+      <g>
+        <rect x="358" y="496" width="52" height="110" fill="url(#barGold)"/>
+        <rect x="358" y="496" width="7" height="110" fill="#DFA637" opacity="0.75"/>
+        <rect x="358" y="496" width="52" height="7" fill="#EFBB53" opacity="0.75"/>
+        <rect x="424" y="464" width="52" height="142" fill="url(#barGold)"/>
+        <rect x="424" y="464" width="7" height="142" fill="#DFA637" opacity="0.75"/>
+        <rect x="424" y="464" width="52" height="7" fill="#EFBB53" opacity="0.75"/>
+        <rect x="490" y="432" width="52" height="174" fill="url(#barGold)"/>
+        <rect x="490" y="432" width="7" height="174" fill="#DFA637" opacity="0.75"/>
+        <rect x="490" y="432" width="52" height="7" fill="#EFBB53" opacity="0.75"/>
+        <rect x="556" y="400" width="52" height="206" fill="url(#barGold)"/>
+        <rect x="556" y="400" width="7" height="206" fill="#DFA637" opacity="0.75"/>
+        <rect x="556" y="400" width="52" height="7" fill="#EFBB53" opacity="0.75"/>
+        <rect x="622" y="368" width="52" height="238" fill="url(#barGold)"/>
+        <rect x="622" y="368" width="7" height="238" fill="#DFA637" opacity="0.75"/>
+        <rect x="622" y="368" width="52" height="7" fill="#EFBB53" opacity="0.75"/>
+      </g>
+      <!-- inner shadow under the rim, and the shaded right wall -->
+      <rect x="280" y="298" width="464" height="76" fill="url(#cupInnerShade)"/>
+      <rect x="280" y="298" width="464" height="310" fill="url(#cupRightShade)" opacity="0.8"/>
+      <!-- specular sweep down the left wall -->
+      <ellipse cx="360" cy="410" rx="42" ry="100" fill="url(#specular)"
+               opacity="0.45" filter="url(#softBlur)" transform="rotate(-8 360 410)"/>
+    </g>
+
+    <!-- ── the arrow: gold-bordered emerald zigzag over the bowl ───────────── -->
+    <g filter="url(#arrowLift)">
+      <path d="M398 542 L462 462 L532 522 L625 401" fill="none" stroke="#C68A1C"
+            stroke-width="58" stroke-linejoin="miter" stroke-linecap="butt"/>
+      <path d="M668 348 L661 455 L565 379 Z" fill="#C68A1C" stroke="#C68A1C"
+            stroke-width="20" stroke-linejoin="miter"/>
+      <path d="M398 542 L462 462 L532 522 L625 401" fill="none" stroke="url(#arrowGreen)"
+            stroke-width="42" stroke-linejoin="miter" stroke-linecap="butt"/>
+      <path d="M665 355 L658 447 L575 381 Z" fill="url(#arrowGreen)"/>
+      <!-- top-facing highlight along the climb -->
+      <path d="M404 532 L462 458 L524 512" fill="none" stroke="#4FD98A" stroke-opacity="0.5"
+            stroke-width="7" stroke-linejoin="miter"/>
+    </g>
+
+    <!-- ── rim: darker underside, front face, then the lit top surface ─────── -->
+    <ellipse cx="512" cy="306" rx="228" ry="38" fill="#9C610C"/>
+    <rect x="284" y="264" width="456" height="42" fill="url(#rimFace)"/>
+    <ellipse cx="512" cy="264" rx="228" ry="40" fill="url(#rimTop)"/>
+    <!-- The opening stays GOLD (a recessed lip, not a dark mug interior): a
+         shallow amber inset with a soft shadow only along its far edge. -->
+    <ellipse cx="512" cy="265" rx="192" ry="27" fill="#D69C2C"/>
+    <ellipse cx="512" cy="263" rx="192" ry="27" fill="url(#rimInset)"/>
+    <path d="M304 252 C364 232 660 232 720 252" fill="none" stroke="#FFF3CE"
+          stroke-opacity="0.5" stroke-width="7" stroke-linecap="round" filter="url(#softBlur)"/>
+
+    <!-- ── stem: collar → sculpted neck → flared foot ──────────────────────── -->
+    <ellipse cx="512" cy="600" rx="60" ry="16" fill="#A96A0E"/>
+    <rect x="456" y="588" width="112" height="28" rx="14" fill="url(#stemGold)"/>
+    <rect x="464" y="592" width="96" height="6" rx="3" fill="#FFEBB0" opacity="0.45"/>
+    <path d="M482 614 h60 v30 c0 24 14 38 40 50 h-140 c26 -12 40 -26 40 -50 z"
+          fill="url(#stemGold)"/>
+    <rect x="418" y="690" width="188" height="26" rx="12" fill="url(#plaqueGold)"/>
+    <rect x="426" y="693" width="172" height="6" rx="3" fill="#FFF0BE" opacity="0.5"/>
+
+    <!-- ── plinth: dark charcoal base, gold plaque, lower platform ─────────── -->
+    <rect x="372" y="722" width="280" height="76" rx="14" fill="url(#plinth)"/>
+    <rect x="372.5" y="722.5" width="279" height="75" rx="13.5" fill="none"
+          stroke="#FFFFFF" stroke-opacity="0.10" stroke-width="2"/>
+    <rect x="416" y="740" width="192" height="42" rx="9" fill="url(#plaqueGold)"/>
+    <rect x="424" y="744" width="176" height="8" rx="4" fill="#FFF0BE" opacity="0.45"/>
+    <rect x="348" y="800" width="328" height="30" rx="12" fill="url(#plinthLow)"/>
+    <rect x="348.5" y="800.5" width="327" height="29" rx="11.5" fill="none"
+          stroke="#FFFFFF" stroke-opacity="0.10" stroke-width="2"/>
+  </g>
+
+  <!-- contact shadow beneath the plinth -->
+  <ellipse cx="512" cy="842" rx="196" ry="20" fill="#000000" opacity="0.5" filter="url(#bigBlur)"/>
+</svg>
